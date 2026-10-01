@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="sfsNavyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E3D7D"/>
+      <stop offset="100%" stop-color="#071B3E"/>
+    </linearGradient>
+    <linearGradient id="sfsBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0080FF"/>
+      <stop offset="100%" stop-color="#004DA8"/>
+    </linearGradient>
+    <linearGradient id="sfsOrangeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C22A00"/>
+      <stop offset="40%" stop-color="#F37021"/>
+      <stop offset="100%" stop-color="#FF9500"/>
+    </linearGradient>
+    <linearGradient id="sfsCyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0066CC"/>
+      <stop offset="60%" stop-color="#00A2F3"/>
+      <stop offset="100%" stop-color="#4CD4FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ISOTIPO SFS (Factory, Chimney, Digital Circuits & Swoop) -->
+  <g transform="translate(10, 10)">
+    <!-- Orange Pixel Bits / Smoke from Chimney -->
+    <rect x="58" y="32" width="10" height="10" rx="1" fill="#F37021" transform="rotate(-5 63 37)"/>
+    <rect x="73" y="24" width="9" height="9" rx="1" fill="#F37021" transform="rotate(3 77 28)"/>
+    <rect x="86" y="16" width="10" height="10" rx="1" fill="#F37021" transform="rotate(-2 91 21)"/>
+    <rect x="70" y="8" width="8" height="8" rx="1" fill="#F37021" transform="rotate(8 74 12)"/>
+    <rect x="88" y="3" width="9" height="9" rx="1" fill="#FF8D24" transform="rotate(-4 92 7)"/>
+    <rect x="99" y="10" width="8" height="8" rx="1" fill="#F37021" transform="rotate(2 103 14)"/>
+
+    <!-- Factory Buildings & Tall Chimney -->
+    <!-- Left Small Factory Block -->
+    <path d="M22 84 L40 68 L54 78 L54 115 L22 115 Z" fill="#003D7A"/>
+    <path d="M22 84 L28 79 L40 68 L40 115 L22 115 Z" fill="#002752"/>
+
+    <!-- Chimney (Industrial Tower) -->
+    <path d="M58 48 L76 45 L74 116 L54 116 Z" fill="url(#sfsBlueGrad)"/>
+    <!-- Shadow side of chimney -->
+    <path d="M54 78 L58 48 L65 47 L63 116 L54 116 Z" fill="#003366"/>
+
+    <!-- Right Modern Tech Building with stripes -->
+    <path d="M88 56 L130 38 L130 112 L88 116 Z" fill="url(#sfsNavyGrad)"/>
+    <!-- Slanted building front -->
+    <path d="M88 56 L104 50 L104 115 L88 116 Z" fill="#0072C6"/>
+    <!-- Horizontal window stripes -->
+    <line x1="93" y1="62" x2="124" y2="48" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <line x1="93" y1="73" x2="124" y2="59" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <line x1="93" y1="84" x2="124" y2="70" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <line x1="93" y1="95" x2="124" y2="81" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <line x1="93" y1="106" x2="124" y2="92" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Circuit Board Traces and Nodes (Cyan & Orange) -->
+    <!-- Circuit 1 -->
+    <path d="M130 52 L144 52 L158 38 L170 38" fill="none" stroke="#00A2F3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="170" cy="38" r="8" fill="none" stroke="#00A2F3" stroke-width="4"/>
+    <circle cx="170" cy="38" r="3" fill="#00A2F3"/>
+
+    <!-- Circuit 2 -->
+    <path d="M130 70 L152 70 L168 54 L188 54" fill="none" stroke="#00A2F3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="188" cy="54" r="8" fill="none" stroke="#00A2F3" stroke-width="4"/>
+    <circle cx="188" cy="54" r="3" fill="#00A2F3"/>
+
+    <!-- Circuit 3 with Orange Node -->
+    <path d="M130 88 L142 88 L154 100 L174 100" fill="none" stroke="#00A2F3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="174" cy="100" r="10" fill="#F37021" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="174" cy="100" r="4" fill="#FFFFFF"/>
+
+    <!-- Circuit vertical branch -->
+    <path d="M152 70 L152 86 L144 94" fill="none" stroke="#00A2F3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Base Curved Dynamic Swoosh / Wave (Blue & Orange) -->
+    <!-- Bottom dark base -->
+    <path d="M18 114 Q70 148 160 128 L152 136 Q65 156 12 118 Z" fill="#08234D"/>
+    <!-- Orange sweeping arc -->
+    <path d="M14 116 Q85 145 180 110 Q95 130 20 114 Z" fill="url(#sfsOrangeGrad)"/>
+    <!-- Cyan sweeping accent -->
+    <path d="M85 132 Q145 125 192 98 Q140 118 85 130 Z" fill="url(#sfsCyanGrad)"/>
+  </g>
+
+  <!-- TYPOGRAPHY: SOFTWARE FACTORY AND SERVICES -->
+  <g transform="translate(225, 20)">
+    <!-- SOFTWARE FACTORY -->
+    <text x="0" y="65" font-family="'Inter', 'Arial Black', sans-serif" font-size="44" font-weight="900" letter-spacing="-1" fill="#0B2A5B">
+      SOFTWARE FACTORY
+    </text>
+    
+    <!-- Separator Line with AND SERVICES -->
+    <!-- Left line -->
+    <line x1="2" y1="88" x2="68" y2="88" stroke="#0B2A5B" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- AND SERVICES text -->
+    <text x="76" y="93" font-family="'Inter', 'Arial', sans-serif" font-size="19" font-weight="700" letter-spacing="4.5" fill="#0B2A5B">
+      AND SERVICES
+    </text>
+    
+    <!-- Right line -->
+    <line x1="272" y1="88" x2="338" y2="88" stroke="#0B2A5B" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Service Desk Sub-branding Badge -->
+    <g transform="translate(0, 108)">
+      <rect x="0" y="0" width="138" height="24" rx="6" fill="#F37021"/>
+      <text x="12" y="16" font-family="'Inter', sans-serif" font-size="11.5" font-weight="800" letter-spacing="1" fill="#FFFFFF">
+        SERVICE DESK
+      </text>
+      <text x="148" y="16" font-family="'Inter', sans-serif" font-size="11" font-weight="600" fill="#5B6B82">
+        Mesa de Ayuda &amp; Soporte
+      </text>
+    </g>
+  </g>
+</svg>
