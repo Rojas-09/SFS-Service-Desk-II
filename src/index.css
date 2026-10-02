@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-sfs-navy: #0B2A5B;
   --color-sfs-blue: #1565C0;

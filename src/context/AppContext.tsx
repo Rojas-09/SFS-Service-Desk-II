@@ -111,7 +111,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const saved = localStorage.getItem('sfs_dark_mode');
       if (saved !== null) return saved === 'true';
-      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return false;
     } catch {
       return false;
     }
@@ -121,9 +121,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       if (darkMode) {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
         localStorage.setItem('sfs_dark_mode', 'true');
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
         localStorage.setItem('sfs_dark_mode', 'false');
       }
     } catch (e) {
@@ -131,7 +133,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [darkMode]);
 
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      showToast(next ? 'Modo oscuro activado' : 'Modo claro corporativo activado', 'info');
+      return next;
+    });
+  };
 
   // User state
   const [currentUser, setCurrentUserState] = useState<Usuario | null>(() => getCurrentUser());
