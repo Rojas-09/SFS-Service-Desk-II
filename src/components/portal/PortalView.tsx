@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Ticket,
@@ -12,7 +12,10 @@ import {
   formatoFechaHoraCO,
   tiempoRelativoCO,
   calcularEstadoSLA,
+  procesarArchivoAdjunto,
+  tamanoLegible,
 } from '../../lib/utils';
+import { FileUploadZone } from '../common/FileUploadZone';
 import {
   PlusCircle,
   Clock,
@@ -34,6 +37,9 @@ import {
   FileCheck,
   Calendar,
   Sparkles,
+  Bell,
+  Download,
+  Eye,
 } from 'lucide-react';
 
 interface PortalViewProps {
@@ -57,12 +63,22 @@ export const PortalView: React.FC<PortalViewProps> = ({
     agregarMensaje,
     calificarTicket,
     reabrirTicket,
+    notificaciones,
+    abrirNotificaciones,
     navigate,
   } = useApp();
+
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
   // If current user is not a client, find their associated company or fallback
   const userEmpresaId = currentUser?.empresaId || 'emp-1';
   const empresa = empresas.find((e) => e.id === userEmpresaId);
+
+  // Count unread notifications for this client
+  const unreadNotifsCount = currentUser
+    ? notificaciones.filter((n) => n.usuarioId === currentUser.id && !n.leida).length
+    : 0;
 
   // Tickets for THIS company only
   const misTicketsEmpresa = useMemo(() => {
@@ -148,21 +164,23 @@ export const PortalView: React.FC<PortalViewProps> = ({
     navigate(`/portal/ticket/${nuevo.id}`);
   };
 
-  const handleSimularSubidaAdjunto = () => {
-    const sampleFiles = [
-      'captura_pantalla_error_cafe.png',
-      'planilla_pesaje_bascula.pdf',
-      'reporte_inconsistencia_dian.xml',
-    ];
-    const pick = sampleFiles[Math.floor(Math.random() * sampleFiles.length)];
-    const nuevo: Adjunto = {
-      id: `adj-cli-${Date.now()}`,
-      nombre: pick,
-      tamanoBytes: 312000,
-      tipoMime: pick.endsWith('.png') ? 'image/png' : 'application/pdf',
-      url: '#',
-    };
-    setAdjuntosForm((prev) => [...prev, nuevo]);
+  const handleChatFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const nuevos: Adjunto[] = [];
+    for (let i = 0; i < e.target.files.length; i++) {
+      try {
+        const adj = await procesarArchivoAdjunto(e.target.files[i]);
+        nuevos.push(adj);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (nuevos.length > 0) {
+      setAdjuntosChat((prev) => [...prev, ...nuevos]);
+    }
+    if (chatFileInputRef.current) {
+      chatFileInputRef.current.value = '';
+    }
   };
 
   const handleEnviarMensajeCliente = (e: React.FormEvent, tId: string) => {
@@ -360,48 +378,13 @@ export const PortalView: React.FC<PortalViewProps> = ({
               />
             </div>
 
-            {/* Adjuntos drag & drop */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-1.5">
-                Adjuntar archivos o capturas
-              </label>
-              <div
-                onClick={handleSimularSubidaAdjunto}
-                className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-[#1565C0] dark:hover:border-[#3FA2E8] rounded-xl p-6 text-center cursor-pointer transition bg-slate-50/50 dark:bg-[#081B3A]/50"
-              >
-                <UploadCloud className="w-8 h-8 text-[#1565C0] dark:text-[#3FA2E8] mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                  Haz clic para seleccionar o arrastra capturas de pantalla / logs aquí
-                </p>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Formatos soportados: PNG, JPG, PDF, XML, TXT (Hasta 25MB)
-                </p>
-              </div>
-
-              {/* Attached files chips */}
-              {adjuntosForm.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {adjuntosForm.map((adj) => (
-                    <div
-                      key={adj.id}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-xs text-blue-950 dark:text-blue-100"
-                    >
-                      <Paperclip className="w-3.5 h-3.5 text-[#1565C0]" />
-                      <span className="font-medium">{adj.nombre}</span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setAdjuntosForm((prev) => prev.filter((a) => a.id !== adj.id))
-                        }
-                        className="text-slate-400 hover:text-red-600 font-bold ml-1.5"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Adjuntos reales con Drag & Drop */}
+            <FileUploadZone
+              adjuntos={adjuntosForm}
+              onAdjuntosChange={setAdjuntosForm}
+              label="Adjuntar archivos o capturas del incidente"
+              helperText="Selecciona o arrastra capturas de pantalla, archivos PDF, XML de DIAN, planillas o registros (Hasta 25MB por archivo)"
+            />
 
             {/* Buttons */}
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-[#1A3668]">
@@ -624,19 +607,54 @@ export const PortalView: React.FC<PortalViewProps> = ({
                     {/* Attachments */}
                     {msg.adjuntos && msg.adjuntos.length > 0 && (
                       <div className="mt-3 pt-2 border-t border-white/20 dark:border-slate-700 flex flex-wrap gap-2">
-                        {msg.adjuntos.map((adj) => (
-                          <div
-                            key={adj.id}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${
-                              esMio
-                                ? 'bg-white/20 text-white'
-                                : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                            }`}
-                          >
-                            <Paperclip className="w-3 h-3" />
-                            <span>{adj.nombre}</span>
-                          </div>
-                        ))}
+                        {msg.adjuntos.map((adj) => {
+                          const isImg =
+                            adj.tipoMime.startsWith('image/') ||
+                            ['png', 'jpg', 'jpeg', 'webp', 'gif'].some((ext) =>
+                              adj.nombre.toLowerCase().endsWith(ext)
+                            );
+                          return (
+                            <div
+                              key={adj.id}
+                              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs shadow-2xs ${
+                                esMio
+                                  ? 'bg-white/20 text-white border border-white/30'
+                                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                              }`}
+                            >
+                              {isImg && adj.url && adj.url.startsWith('data:') ? (
+                                <img
+                                  src={adj.url}
+                                  alt={adj.nombre}
+                                  onClick={() => setLightboxImg(adj.url)}
+                                  className="w-7 h-7 rounded object-cover cursor-pointer hover:opacity-80 shrink-0"
+                                  title="Clic para ampliar imagen"
+                                />
+                              ) : (
+                                <Paperclip className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                              )}
+                              <span
+                                className="font-semibold truncate max-w-[130px] sm:max-w-[200px]"
+                                title={adj.nombre}
+                              >
+                                {adj.nombre}
+                              </span>
+                              <span className="text-[10px] opacity-75 shrink-0">
+                                ({tamanoLegible(adj.tamanoBytes)})
+                              </span>
+                              {adj.url && adj.url.startsWith('data:') && (
+                                <a
+                                  href={adj.url}
+                                  download={adj.nombre}
+                                  className="p-1 hover:opacity-100 opacity-70 transition ml-1 shrink-0"
+                                  title="Descargar archivo"
+                                >
+                                  <Download className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -659,23 +677,45 @@ export const PortalView: React.FC<PortalViewProps> = ({
                 className="w-full p-3.5 text-xs md:text-sm bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] rounded-xl focus:outline-none focus:border-[#1565C0] text-slate-800 dark:text-slate-100"
               />
 
+              {/* Attached files preview chips */}
+              {adjuntosChat.length > 0 && (
+                <div className="flex flex-wrap gap-2 pb-1">
+                  {adjuntosChat.map((adj) => (
+                    <div
+                      key={adj.id}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-100"
+                    >
+                      <Paperclip className="w-3.5 h-3.5 text-[#1565C0] shrink-0" />
+                      <span className="font-semibold truncate max-w-[150px]">{adj.nombre}</span>
+                      <span className="text-[10px] text-slate-400">({tamanoLegible(adj.tamanoBytes)})</span>
+                      <button
+                        type="button"
+                        onClick={() => setAdjuntosChat((prev) => prev.filter((a) => a.id !== adj.id))}
+                        className="text-slate-400 hover:text-red-600 font-bold ml-1"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
+                <input
+                  ref={chatFileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleChatFileChange}
+                  className="hidden"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.xml,.txt,.csv,.log,.zip"
+                />
                 <button
                   type="button"
-                  onClick={() => {
-                    const adj: Adjunto = {
-                      id: `adj-resp-${Date.now()}`,
-                      nombre: 'evidencia_adicional.png',
-                      tamanoBytes: 189000,
-                      tipoMime: 'image/png',
-                      url: '#',
-                    };
-                    setAdjuntosChat((prev) => [...prev, adj]);
-                  }}
-                  className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 hover:text-[#1565C0] font-medium"
+                  onClick={() => chatFileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#1A3668] bg-slate-50 dark:bg-[#081B3A] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-[#1565C0] hover:text-[#1565C0] transition"
                 >
-                  <Paperclip className="w-3.5 h-3.5" />
-                  <span>Adjuntar captura / archivo</span>
+                  <Paperclip className="w-3.5 h-3.5 text-[#1565C0]" />
+                  <span>Adjuntar archivo o captura</span>
                   {adjuntosChat.length > 0 && (
                     <span className="font-bold text-[#1565C0]">({adjuntosChat.length})</span>
                   )}
@@ -820,7 +860,7 @@ export const PortalView: React.FC<PortalViewProps> = ({
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Abiertos */}
         <div
           onClick={() => setListEstadoFiltro('abiertos')}
@@ -842,9 +882,13 @@ export const PortalView: React.FC<PortalViewProps> = ({
         {/* En espera de mi respuesta */}
         <div
           onClick={() => setListEstadoFiltro('espera')}
-          className="bg-white dark:bg-[#0E244D] p-5 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs cursor-pointer hover:border-amber-400 transition flex items-center gap-4"
+          className={`p-5 rounded-2xl border shadow-xs cursor-pointer transition flex items-center gap-4 ${
+            ticketsEnEsperaCliente > 0
+              ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 hover:border-amber-500'
+              : 'bg-white dark:bg-[#0E244D] border-slate-200 dark:border-[#1A3668] hover:border-amber-400'
+          }`}
         >
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950 flex items-center justify-center text-amber-500">
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-400">
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
@@ -852,7 +896,7 @@ export const PortalView: React.FC<PortalViewProps> = ({
               {ticketsEnEsperaCliente}
             </div>
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              En espera de mi respuesta
+              En espera de tu respuesta
             </div>
           </div>
         </div>
@@ -873,6 +917,33 @@ export const PortalView: React.FC<PortalViewProps> = ({
               Resueltos este mes
             </div>
           </div>
+        </div>
+
+        {/* Notificaciones & Alertas (Relocated with superior experience!) */}
+        <div
+          onClick={abrirNotificaciones}
+          className="bg-white dark:bg-[#0E244D] p-5 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs cursor-pointer hover:border-[#F37021] transition flex items-center justify-between group"
+          title="Abrir Centro de Notificaciones"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/60 flex items-center justify-center text-[#F37021]">
+              <Bell className="w-6 h-6 group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <div className="text-2xl font-black text-[#0B2A5B] dark:text-white flex items-center gap-1.5">
+                <span>{unreadNotifsCount}</span>
+                {unreadNotifsCount > 0 && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#F37021] text-white animate-pulse">
+                    Nuevas
+                  </span>
+                )}
+              </div>
+              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                Notificaciones & Alertas
+              </div>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#F37021] transition" />
         </div>
       </div>
 
@@ -998,6 +1069,32 @@ export const PortalView: React.FC<PortalViewProps> = ({
           )}
         </div>
       </div>
+
+      {/* Lightbox / Zoom Modal */}
+      {lightboxImg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
+          onClick={() => setLightboxImg(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-[#0E244D] p-2 rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setLightboxImg(null)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition"
+              aria-label="Cerrar vista previa"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={lightboxImg}
+              alt="Evidencia ampliada"
+              className="max-h-[82vh] w-auto rounded-xl object-contain mx-auto"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

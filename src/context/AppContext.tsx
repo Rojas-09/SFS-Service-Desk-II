@@ -64,6 +64,12 @@ interface AppContextType {
   macros: MacroRespuesta[];
   config: ConfiguracionSistema;
 
+  // Notifications Drawer
+  notificacionesAbiertas: boolean;
+  setNotificacionesAbiertas: (abiertas: boolean) => void;
+  abrirNotificaciones: () => void;
+  cerrarNotificaciones: () => void;
+
   // Actions
   crearTicket: (datos: {
     asunto: string;
@@ -96,6 +102,8 @@ interface AppContextType {
   // Notifications
   marcarNotificacionLeida: (id: string) => void;
   marcarTodasNotificacionesLeidas: () => void;
+  eliminarNotificacion: (id: string) => void;
+  limpiarNotificacionesLeidas: () => void;
 
   // Toasts
   toasts: ToastItem[];
@@ -231,6 +239,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {}
     return MOCK_NOTIFICACIONES;
   });
+
+  // Global Notification Drawer State
+  const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false);
+  const abrirNotificaciones = () => setNotificacionesAbiertas(true);
+  const cerrarNotificaciones = () => setNotificacionesAbiertas(false);
 
   const [reglasSla, setReglasSla] = useState<ReglaSLA[]>(() => {
     try {
@@ -803,6 +816,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('Todas las notificaciones marcadas como leídas', 'info');
   };
 
+  const eliminarNotificacion = (id: string) => {
+    setNotificaciones((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const limpiarNotificacionesLeidas = () => {
+    if (!currentUser) return;
+    setNotificaciones((prev) =>
+      prev.filter((n) => !(n.usuarioId === currentUser.id && n.leida))
+    );
+    showToast('Notificaciones leídas eliminadas', 'info');
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -821,6 +846,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         usuarios,
         anuncios,
         notificaciones,
+        notificacionesAbiertas,
+        setNotificacionesAbiertas,
+        abrirNotificaciones,
+        cerrarNotificaciones,
         reglasSla,
         macros,
         config,
@@ -842,6 +871,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         guardarMacros,
         marcarNotificacionLeida,
         marcarTodasNotificacionesLeidas,
+        eliminarNotificacion,
+        limpiarNotificacionesLeidas,
         toasts,
         showToast,
         removeToast,

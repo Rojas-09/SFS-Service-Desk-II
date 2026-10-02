@@ -10,6 +10,8 @@ import {
   formatoFechaHoraCO,
   tiempoRelativoCO,
   calcularEstadoSLA,
+  procesarArchivoAdjunto,
+  tamanoLegible,
 } from '../../lib/utils';
 import {
   ArrowLeft,
@@ -31,6 +33,9 @@ import {
   Star,
   RefreshCw,
   FolderOpen,
+  Download,
+  Eye,
+  X,
 } from 'lucide-react';
 
 interface ConsolaTicketDetailProps {
@@ -62,6 +67,8 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
   const [selectedMacroId, setSelectedMacroId] = useState('');
   const [archivosSimulados, setArchivosSimulados] = useState<Adjunto[]>([]);
   const [nuevaEtiqueta, setNuevaEtiqueta] = useState('');
+  const agentFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
   // Right sidebar tab: 'ficha' | 'historial' | 'relacionados'
   const [fichaTab, setFichaTab] = useState<'ficha' | 'historial' | 'relacionados'>('ficha');
@@ -125,22 +132,23 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
     setSelectedMacroId('');
   };
 
-  const handleSimularAdjunto = () => {
-    const nombresArchivos = [
-      'diagnostico_ws_dian_xml.xml',
-      'logs_servidor_trilla.log',
-      'captura_pantalla_error.png',
-      'certificado_oic_muestra.pdf',
-    ];
-    const rnd = nombresArchivos[Math.floor(Math.random() * nombresArchivos.length)];
-    const nuevoAdj: Adjunto = {
-      id: `adj-${Date.now()}`,
-      nombre: rnd,
-      tamanoBytes: 154200,
-      tipoMime: rnd.endsWith('.xml') ? 'application/xml' : 'application/pdf',
-      url: '#',
-    };
-    setArchivosSimulados((prev) => [...prev, nuevoAdj]);
+  const handleAgentFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const nuevos: Adjunto[] = [];
+    for (let i = 0; i < e.target.files.length; i++) {
+      try {
+        const adj = await procesarArchivoAdjunto(e.target.files[i]);
+        nuevos.push(adj);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (nuevos.length > 0) {
+      setArchivosSimulados((prev) => [...prev, ...nuevos]);
+    }
+    if (agentFileInputRef.current) {
+      agentFileInputRef.current.value = '';
+    }
   };
 
   const handleAddEtiqueta = (e: React.KeyboardEvent) => {
@@ -310,18 +318,47 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
                     {/* Attachments */}
                     {msg.adjuntos && msg.adjuntos.length > 0 && (
                       <div className="mt-3 pt-2 border-t border-slate-200/50 dark:border-slate-800 flex flex-wrap gap-2">
-                        {msg.adjuntos.map((adj) => (
-                          <div
-                            key={adj.id}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] text-xs text-slate-700 dark:text-slate-200"
-                          >
-                            <Paperclip className="w-3 h-3 text-slate-400" />
-                            <span className="font-medium">{adj.nombre}</span>
-                            <span className="text-[10px] text-slate-400">
-                              ({Math.round(adj.tamanoBytes / 1024)} KB)
-                            </span>
-                          </div>
-                        ))}
+                        {msg.adjuntos.map((adj) => {
+                          const isImg =
+                            adj.tipoMime.startsWith('image/') ||
+                            ['png', 'jpg', 'jpeg', 'webp', 'gif'].some((ext) =>
+                              adj.nombre.toLowerCase().endsWith(ext)
+                            );
+                          return (
+                            <div
+                              key={adj.id}
+                              className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] text-xs text-slate-700 dark:text-slate-200 shadow-2xs"
+                            >
+                              {isImg && adj.url && adj.url.startsWith('data:') ? (
+                                <img
+                                  src={adj.url}
+                                  alt={adj.nombre}
+                                  onClick={() => setLightboxImg(adj.url)}
+                                  className="w-7 h-7 rounded object-cover cursor-pointer hover:opacity-80 shrink-0"
+                                  title="Clic para ampliar imagen"
+                                />
+                              ) : (
+                                <Paperclip className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              )}
+                              <span className="font-semibold truncate max-w-[140px] sm:max-w-[200px]" title={adj.nombre}>
+                                {adj.nombre}
+                              </span>
+                              <span className="text-[10px] text-slate-400 shrink-0">
+                                ({tamanoLegible(adj.tamanoBytes)})
+                              </span>
+                              {adj.url && adj.url.startsWith('data:') && (
+                                <a
+                                  href={adj.url}
+                                  download={adj.nombre}
+                                  className="p-1 hover:text-[#1565C0] text-slate-400 transition ml-0.5"
+                                  title="Descargar archivo"
+                                >
+                                  <Download className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -406,16 +443,17 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
                 } text-slate-800 dark:text-slate-100`}
               />
 
-              {/* Simulated attached files preview */}
+              {/* Attached files preview chips */}
               {archivosSimulados.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {archivosSimulados.map((a) => (
                     <span
                       key={a.id}
-                      className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-1.5"
+                      className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-1.5 border border-slate-200 dark:border-slate-700"
                     >
                       <Paperclip className="w-3 h-3 text-[#1565C0]" />
-                      {a.nombre}
+                      <span className="font-semibold truncate max-w-[150px]">{a.nombre}</span>
+                      <span className="text-[10px] text-slate-400">({tamanoLegible(a.tamanoBytes)})</span>
                       <button
                         type="button"
                         onClick={() =>
@@ -430,15 +468,26 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
                 </div>
               )}
 
-              {/* Action buttons */}
+              {/* Action buttons with real file input */}
               <div className="flex items-center justify-between pt-1">
+                <input
+                  ref={agentFileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleAgentFileChange}
+                  className="hidden"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.xml,.txt,.csv,.log,.zip"
+                />
                 <button
                   type="button"
-                  onClick={handleSimularAdjunto}
-                  className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 hover:text-[#1565C0] font-medium"
+                  onClick={() => agentFileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#1A3668] bg-slate-50 dark:bg-[#081B3A] text-xs text-slate-700 dark:text-slate-300 hover:border-[#1565C0] hover:text-[#1565C0] transition font-medium"
                 >
-                  <Paperclip className="w-3.5 h-3.5" />
-                  <span>Adjuntar log / archivo</span>
+                  <Paperclip className="w-3.5 h-3.5 text-[#1565C0]" />
+                  <span>Adjuntar log / captura / archivo</span>
+                  {archivosSimulados.length > 0 && (
+                    <span className="font-bold text-[#1565C0]">({archivosSimulados.length})</span>
+                  )}
                 </button>
 
                 <div className="flex items-center gap-2">
@@ -761,6 +810,32 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
           )}
         </div>
       </div>
+
+      {/* Lightbox / Zoom Modal */}
+      {lightboxImg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
+          onClick={() => setLightboxImg(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-[#0E244D] p-2 rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setLightboxImg(null)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition"
+              aria-label="Cerrar vista previa"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={lightboxImg}
+              alt="Evidencia ampliada"
+              className="max-h-[82vh] w-auto rounded-xl object-contain mx-auto"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,52 @@
+import { Adjunto } from '../types';
+
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ');
+}
+
+export function tamanoLegible(bytes: number): string {
+  if (!bytes || bytes <= 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
+export function procesarArchivoAdjunto(file: File): Promise<Adjunto> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = (e.target?.result as string) || '';
+      resolve({
+        id: `adj-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        nombre: file.name,
+        tamanoBytes: file.size,
+        tipoMime: file.type || 'application/octet-stream',
+        url: dataUrl,
+      });
+    };
+    reader.onerror = () => {
+      resolve({
+        id: `adj-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        nombre: file.name,
+        tamanoBytes: file.size,
+        tipoMime: file.type || 'application/octet-stream',
+        url: '#',
+      });
+    };
+    // If under 15MB read as data URL for rich preview and inline display
+    if (file.size <= 15 * 1024 * 1024) {
+      reader.readAsDataURL(file);
+    } else {
+      resolve({
+        id: `adj-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        nombre: file.name,
+        tamanoBytes: file.size,
+        tipoMime: file.type || 'application/octet-stream',
+        url: '#',
+      });
+    }
+  });
 }
 
 export function formatoFechaHoraCO(fechaIso: string | Date | undefined): string {

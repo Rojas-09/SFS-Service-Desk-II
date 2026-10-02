@@ -3,6 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/consola/Sidebar';
 import { ToastContainer } from './components/common/ToastContainer';
+import { NotificationDrawer } from './components/common/NotificationDrawer';
 import { Login } from './components/auth/Login';
 import { ConsolaBandeja } from './components/consola/ConsolaBandeja';
 import { ConsolaTicketDetail } from './components/consola/ConsolaTicketDetail';
@@ -63,6 +64,7 @@ const AppContent: React.FC = () => {
           <PortalView subView={subView} ticketId={ticketId} />
         </main>
         <ToastContainer />
+        <NotificationDrawer />
       </div>
     );
   }
@@ -119,6 +121,7 @@ const AppContent: React.FC = () => {
       </div>
 
       <ToastContainer />
+      <NotificationDrawer />
     </div>
   );
 };

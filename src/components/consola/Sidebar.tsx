@@ -14,6 +14,7 @@ import {
   ChevronRight,
   ExternalLink,
   ShieldCheck,
+  Bell,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,7 +23,11 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
-  const { currentPath, navigate, currentUser, tickets } = useApp();
+  const { currentPath, navigate, currentUser, tickets, notificaciones, abrirNotificaciones } = useApp();
+
+  const unreadNotifsCount = currentUser
+    ? notificaciones.filter((n) => n.usuarioId === currentUser.id && !n.leida).length
+    : 0;
 
   // Counts
   const misTicketsCount = tickets.filter(
@@ -173,6 +178,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                     </button>
                   );
                 })}
+
+                {/* Notificaciones in Sidebar */}
+                <button
+                  onClick={() => {
+                    abrirNotificaciones();
+                    if (onCloseMobile) onCloseMobile();
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-[#12366E] hover:text-white transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Bell className="w-4 h-4 text-[#F37021]" />
+                    <span>Notificaciones</span>
+                  </div>
+                  {unreadNotifsCount > 0 && (
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#F37021] text-white">
+                      {unreadNotifsCount}
+                    </span>
+                  )}
+                </button>
               </nav>
             </div>
 
