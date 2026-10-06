@@ -278,9 +278,10 @@ export const ConsolaMetricas: React.FC = () => {
       {/* Top Header & Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-[#0B2A5B] dark:text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-[#0B2A5B] dark:text-white tracking-tight flex items-baseline gap-3">
             <span>Métricas Operativas & Desempeño SLA</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold">
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               En Vivo
             </span>
           </h1>
@@ -327,75 +328,75 @@ export const ConsolaMetricas: React.FC = () => {
         </div>
       </div>
 
-      {/* 6 Top KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        {/* Tickets Abiertos */}
-        <div className="bg-white dark:bg-[#0E244D] p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Casos Abiertos
+      {/* Unified Tabular Metric Strip (Zero-Pill Architecture) */}
+      <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-2xl shadow-xs overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-[#1B2F52]">
+          {/* 1. Casos Abiertos */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Casos Abiertos
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-[#0B2A5B] dark:text-white font-mono tabular-nums">
+              {totalAbiertos}
+            </div>
+            <span className="text-[10px] text-slate-400 mt-0.5">En gestión activa</span>
           </div>
-          <div className="text-2xl font-black text-[#0B2A5B] dark:text-white mt-1">
-            {totalAbiertos}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">En gestión activa</div>
-        </div>
 
-        {/* Creados Hoy */}
-        <div className="bg-white dark:bg-[#0E244D] p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Creados Hoy
+          {/* 2. Creados Hoy */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Creados Hoy
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-[#1565C0] dark:text-[#3FA2E8] font-mono tabular-nums">
+              {hoyTicketsCount}
+            </div>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Flujo regular</span>
           </div>
-          <div className="text-2xl font-black text-[#1565C0] dark:text-[#3FA2E8] mt-1">
-            {hoyTicketsCount}
-          </div>
-          <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">Flujo regular</div>
-        </div>
 
-        {/* Promedio 1ra Respuesta */}
-        <div className="bg-white dark:bg-[#0E244D] p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            1ra Respuesta
+          {/* 3. Promedio 1ra Respuesta */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              1ra Respuesta
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
+              {promedioPrimeraRespH}h
+            </div>
+            <span className="text-[10px] text-slate-400 mt-0.5">Meta SLA: &lt;4h</span>
           </div>
-          <div className="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">
-            {promedioPrimeraRespH}h
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Meta: &lt;4h</div>
-        </div>
 
-        {/* Promedio Solución */}
-        <div className="bg-white dark:bg-[#0E244D] p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Tiempo Solución
+          {/* 4. Tiempo Solución (MTTR) */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Tiempo Solución
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
+              {promedioSolucionH}h
+            </div>
+            <span className="text-[10px] text-slate-400 mt-0.5">Horas hábiles CO</span>
           </div>
-          <div className="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">
-            {promedioSolucionH}h
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Horas hábiles CO</div>
-        </div>
 
-        {/* % SLA Cumplimiento */}
-        <div className="bg-white dark:bg-[#0E244D] p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Cumplimiento SLA
+          {/* 5. Cumplimiento SLA */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Cumplimiento SLA
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
+              {porcentajeSLA}%
+            </div>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Meta: 90%</span>
           </div>
-          <div className="text-2xl font-black text-[#16A34A] mt-1">
-            {porcentajeSLA}%
-          </div>
-          <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">
-            Meta corporativa: 90%
-          </div>
-        </div>
 
-        {/* CSAT Promedio */}
-        <div className="bg-white dark:bg-[#0E244D] p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            CSAT Clientes
+          {/* 6. CSAT Clientes */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              CSAT Clientes
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-amber-500 font-mono tabular-nums flex items-baseline gap-1">
+              <span>{csatPromedio}</span>
+              <span className="text-xs text-slate-400 font-sans font-normal">/ 5.0</span>
+            </div>
+            <span className="text-[10px] text-slate-400 mt-0.5">Satisfacción promedio</span>
           </div>
-          <div className="text-2xl font-black text-amber-500 mt-1 flex items-center gap-1">
-            <span>{csatPromedio}</span>
-            <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Escala 1 - 5 estrellas</div>
         </div>
       </div>
 

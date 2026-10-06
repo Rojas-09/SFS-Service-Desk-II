@@ -158,7 +158,7 @@ export const Login: React.FC = () => {
                     Trilladora La Bastilla • Solo ve sus tickets
                   </div>
                 </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#1565C0] font-bold">
+                <span className="text-[11px] font-mono font-bold text-[#1565C0] dark:text-[#3FA2E8] tracking-wider uppercase">
                   CLIENTE
                 </span>
               </button>
@@ -182,7 +182,7 @@ export const Login: React.FC = () => {
                     Especialista ERP & Trilla • Notas internas y cola
                   </div>
                 </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+                <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 tracking-wider uppercase">
                   AGENTE
                 </span>
               </button>
@@ -206,7 +206,7 @@ export const Login: React.FC = () => {
                     Líder de Soporte • Métricas, Anuncios & Config
                   </div>
                 </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold">
+                <span className="text-[11px] font-mono font-bold text-purple-700 dark:text-purple-400 tracking-wider uppercase">
                   SUPERVISOR
                 </span>
               </button>

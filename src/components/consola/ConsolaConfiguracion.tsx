@@ -172,19 +172,22 @@ export const ConsolaConfiguracion: React.FC = () => {
                 className="p-4 rounded-xl border border-slate-200 dark:border-[#1A3668] bg-slate-50/50 dark:bg-[#081B3A]/40 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase ${
-                      regla.prioridad === 'critica'
-                        ? 'bg-red-100 text-red-700'
-                        : regla.prioridad === 'alta'
-                        ? 'bg-orange-100 text-[#F37021]'
-                        : regla.prioridad === 'media'
-                        ? 'bg-blue-100 text-[#1565C0]'
-                        : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {regla.prioridad}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        regla.prioridad === 'critica'
+                          ? 'bg-rose-600 animate-pulse'
+                          : regla.prioridad === 'alta'
+                          ? 'bg-[#F37021]'
+                          : regla.prioridad === 'media'
+                          ? 'bg-blue-600'
+                          : 'bg-slate-400'
+                      }`}
+                    />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      {regla.prioridad}
+                    </span>
+                  </div>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     {regla.nombre}
                   </span>

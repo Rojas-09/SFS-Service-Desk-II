@@ -87,10 +87,10 @@ export const ConsolaEmpresas: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-[#0B2A5B] dark:text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-[#0B2A5B] dark:text-white tracking-tight flex items-baseline gap-2">
             <span>Directorio de Empresas Cliente</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-[#1565C0] dark:bg-blue-950 dark:text-blue-300 font-semibold">
-              {empresas.length} organizaciones
+            <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500 tabular-nums">
+              ({empresas.length} organizaciones)
             </span>
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -130,20 +130,12 @@ export const ConsolaEmpresas: React.FC = () => {
                       <h2 className="text-sm md:text-base font-bold text-[#0B2A5B] dark:text-white leading-tight">
                         {emp.nombre}
                       </h2>
-                      <span className="text-xs text-slate-400">NIT: {emp.nit}</span>
+                      <span className="text-xs text-slate-400 font-mono">NIT: {emp.nit}</span>
                     </div>
                   </div>
 
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      emp.planSoporte === 'Gold 24/7'
-                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                        : emp.planSoporte === 'Platinum Empresa'
-                        ? 'bg-purple-100 text-purple-900 border border-purple-300'
-                        : 'bg-blue-100 text-[#1565C0] border border-blue-200'
-                    }`}
-                  >
-                    {emp.planSoporte}
+                  <span className="font-mono text-xs font-bold text-slate-600 dark:text-slate-300">
+                    Plan {emp.planSoporte}
                   </span>
                 </div>
 

@@ -224,49 +224,66 @@ export const ConsolaBandeja: React.FC = () => {
   };
 
   const getEstadoBadge = (st: EstadoTicket) => {
-    const config: Record<EstadoTicket, { label: string; class: string }> = {
+    const config: Record<EstadoTicket, { label: string; dot: string; text: string }> = {
       nuevo: {
         label: 'Nuevo',
-        class: 'bg-blue-50 text-[#1565C0] border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900',
+        dot: 'bg-blue-500',
+        text: 'text-blue-700 dark:text-blue-400 font-semibold',
       },
       asignado: {
         label: 'Asignado',
-        class: 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900',
+        dot: 'bg-purple-500',
+        text: 'text-purple-700 dark:text-purple-400 font-medium',
       },
       en_progreso: {
         label: 'En progreso',
-        class: 'bg-sky-50 text-sky-800 border-sky-200/80 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-900',
+        dot: 'bg-sky-500 animate-pulse',
+        text: 'text-sky-700 dark:text-sky-400 font-medium',
       },
       en_espera_cliente: {
         label: 'Espera cliente',
-        class: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700 font-semibold',
+        dot: 'bg-amber-500',
+        text: 'text-amber-700 dark:text-amber-400 font-semibold',
       },
       resuelto: {
         label: 'Resuelto',
-        class: 'bg-emerald-50 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900 font-medium',
+        dot: 'bg-emerald-500',
+        text: 'text-emerald-700 dark:text-emerald-400 font-medium',
       },
       cerrado: {
         label: 'Cerrado',
-        class: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700',
+        dot: 'bg-slate-400',
+        text: 'text-slate-600 dark:text-slate-400',
       },
     };
     const c = config[st];
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 text-[11px] rounded-md border ${c.class}`}>
-        {c.label}
+      <span className={`inline-flex items-center gap-1.5 text-xs ${c.text}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+        <span>{c.label}</span>
       </span>
     );
   };
+
+  // Metrics for top strip
+  const totalActivos = tickets.filter((t) => t.estado !== 'resuelto' && t.estado !== 'cerrado').length;
+  const enProgresoCount = tickets.filter((t) => t.estado === 'en_progreso').length;
+  const esperaClienteCount = tickets.filter((t) => t.estado === 'en_espera_cliente').length;
+  const slaCriticoCount = tickets.filter((t) => {
+    if (t.estado === 'resuelto' || t.estado === 'cerrado') return false;
+    const s = calcularEstadoSLA(t.slaSolucionVence);
+    return s.estado === 'vencido' || s.estado === 'por_vencer';
+  }).length;
 
   return (
     <div className="space-y-4">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-[#0B2A5B] dark:text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-[#0B2A5B] dark:text-white tracking-tight flex items-baseline gap-2">
             <span>Bandeja de Tickets</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-[#1565C0] dark:bg-blue-950 dark:text-blue-300 font-semibold">
-              {filteredTickets.length} {filteredTickets.length === 1 ? 'caso' : 'casos'}
+            <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-400 tabular-nums">
+              ({filteredTickets.length} de {tickets.length})
             </span>
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -274,15 +291,15 @@ export const ConsolaBandeja: React.FC = () => {
           </p>
         </div>
 
-        {/* View toggle & refresh */}
+        {/* View toggle */}
         <div className="flex items-center gap-2">
-          <div className="flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl">
+          <div className="flex bg-slate-100 dark:bg-[#081528] p-1 rounded-xl border border-slate-200/80 dark:border-[#1B2F52]">
             <button
               onClick={() => setViewMode('tabla')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                 viewMode === 'tabla'
-                  ? 'bg-white dark:bg-[#0E244D] text-[#1565C0] dark:text-[#3FA2E8] shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#1565C0] text-[#1565C0] dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <List className="w-3.5 h-3.5" />
@@ -290,15 +307,82 @@ export const ConsolaBandeja: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('kanban')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                 viewMode === 'kanban'
-                  ? 'bg-white dark:bg-[#0E244D] text-[#1565C0] dark:text-[#3FA2E8] shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#1565C0] text-[#1565C0] dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Kanban</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabular Metric Strip (Zero-Pill Discipline) */}
+      <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-2xl shadow-xs overflow-hidden">
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-[#1B2F52]">
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Casos Activos
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-[#0B2A5B] dark:text-white font-mono tabular-nums">
+              {totalActivos}
+            </div>
+            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+              En atención o asignados
+            </span>
+          </div>
+
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              En Progreso
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-[#1565C0] dark:text-[#3FA2E8] font-mono tabular-nums">
+              {enProgresoCount}
+            </div>
+            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+              Ingenieros trabajando
+            </span>
+          </div>
+
+          <div
+            onClick={() => setSoloSinAsignar(false)}
+            className="p-4 flex flex-col justify-between cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition"
+          >
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Espera de Cliente
+            </span>
+            <div className="mt-1 text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-mono tabular-nums">
+              {esperaClienteCount}
+            </div>
+            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+              Pendiente respuesta empresa
+            </span>
+          </div>
+
+          <div
+            onClick={() => setFiltroSla(filtroSla === 'vencido' ? '' : 'vencido')}
+            className={`p-4 flex flex-col justify-between cursor-pointer transition ${
+              slaCriticoCount > 0
+                ? 'bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/70'
+                : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/20'
+            }`}
+          >
+            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
+              slaCriticoCount > 0 ? 'text-rose-700 dark:text-rose-400 font-bold' : 'text-slate-500 dark:text-slate-400'
+            }`}>
+              SLA Crítico / Vencidos
+            </span>
+            <div className={`mt-1 text-2xl font-extrabold font-mono tabular-nums ${
+              slaCriticoCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'
+            }`}>
+              {slaCriticoCount}
+            </div>
+            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+              {slaCriticoCount > 0 ? 'Toca para filtrar urgentes' : 'Dentro del rango pactado'}
+            </span>
           </div>
         </div>
       </div>
@@ -643,9 +727,16 @@ export const ConsolaBandeja: React.FC = () => {
 
                         {/* SLA Clock */}
                         <td className="p-3">
-                          <div className="flex items-center gap-1">
-                            <span className={`px-2 py-0.5 text-[10px] rounded-md border ${slaInfo.badgeClase}`}>
-                              {slaInfo.tiempoRestanteTexto}
+                          <div className="flex items-center gap-1 font-mono text-xs tabular-nums">
+                            <span className={`inline-flex items-center gap-1 font-semibold ${
+                              slaInfo.estado === 'vencido'
+                                ? 'text-rose-600 dark:text-rose-400'
+                                : slaInfo.estado === 'por_vencer'
+                                ? 'text-amber-600 dark:text-amber-400'
+                                : 'text-slate-600 dark:text-slate-300'
+                            }`}>
+                              <Clock className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                              <span>{slaInfo.tiempoRestanteTexto}</span>
                             </span>
                           </div>
                         </td>
@@ -754,17 +845,24 @@ export const ConsolaBandeja: React.FC = () => {
                           <span className="truncate">{empNombre}</span>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-200/60 dark:border-[#1A3668]/60 flex items-center justify-between text-[10px]">
-                          <span className={`px-1.5 py-0.5 rounded font-medium border ${slaInfo.badgeClase}`}>
-                            {slaInfo.tiempoRestanteTexto}
+                        <div className="pt-2 border-t border-slate-200/60 dark:border-[#1B2F52] flex items-center justify-between text-[11px] font-mono tabular-nums">
+                          <span className={`inline-flex items-center gap-1 font-semibold ${
+                            slaInfo.estado === 'vencido'
+                              ? 'text-rose-600 dark:text-rose-400'
+                              : slaInfo.estado === 'por_vencer'
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-slate-500 dark:text-slate-400'
+                          }`}>
+                            <Clock className="w-3 h-3 opacity-70" />
+                            <span>{slaInfo.tiempoRestanteTexto}</span>
                           </span>
 
                           {agente ? (
-                            <span className="font-medium text-slate-600 dark:text-slate-300">
+                            <span className="font-medium text-slate-600 dark:text-slate-300 font-sans text-[10px]">
                               {agente.split(' ')[0]}
                             </span>
                           ) : (
-                            <span className="text-amber-500 font-semibold">Sin asignar</span>
+                            <span className="text-amber-500 font-semibold font-sans text-[10px]">Sin asignar</span>
                           )}
                         </div>
                       </div>

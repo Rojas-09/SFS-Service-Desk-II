@@ -184,10 +184,11 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-sm md:text-base font-bold text-[#1565C0] dark:text-[#3FA2E8]">
+              <span className="font-mono text-sm md:text-base font-black text-[#1565C0] dark:text-[#3FA2E8]">
                 {ticket.numero}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">·</span>
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                 {ticket.modulo}
               </span>
             </div>

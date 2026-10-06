@@ -40,6 +40,23 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const userRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Global keyboard shortcut '/' to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === '/' &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Close user dropdown on click outside
   useEffect(() => {
@@ -104,14 +121,15 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
             <input
+              ref={searchInputRef}
               type="text"
-              placeholder="Buscar #ticket o palabra..."
+              placeholder="Buscar #ticket o palabra... (presiona /)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-12 py-1.5 text-xs bg-slate-100/80 dark:bg-[#081528] border border-transparent dark:border-[#1B2F52] rounded-xl focus:outline-none focus:border-[#1565C0] dark:focus:border-[#3FA2E8] text-slate-800 dark:text-slate-100 transition placeholder:text-slate-400 font-sans"
             />
             <span className="absolute right-2.5 text-[10px] font-mono text-slate-400 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-800 px-1 py-0.5 rounded pointer-events-none">
-              ↵
+              /
             </span>
           </form>
         </div>
@@ -140,17 +158,17 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-          {/* Dark Mode Toggle */}
+          {/* Fluid Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition"
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 active:scale-90 transition-all duration-200 group"
             aria-label="Alternar modo claro u oscuro"
-            title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            title={darkMode ? 'Cambiar a modo claro corporativo' : 'Cambiar a modo oscuro'}
           >
             {darkMode ? (
-              <Sun className="w-5 h-5 text-amber-400" />
+              <Sun className="w-5 h-5 text-amber-400 transform transition-transform duration-300 rotate-0 group-hover:rotate-45" />
             ) : (
-              <Moon className="w-5 h-5 text-slate-600" />
+              <Moon className="w-5 h-5 text-slate-600 transform transition-transform duration-300 rotate-0 group-hover:-rotate-12" />
             )}
           </button>
 

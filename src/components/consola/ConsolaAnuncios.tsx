@@ -122,10 +122,10 @@ export const ConsolaAnuncios: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-[#0B2A5B] dark:text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-[#0B2A5B] dark:text-white tracking-tight flex items-baseline gap-2">
             <span>Anuncios & Comunicados Masivos</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-[#1565C0] dark:bg-blue-950 dark:text-blue-300 font-semibold">
-              {anuncios.length} registrados
+            <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500 tabular-nums">
+              ({anuncios.length} registrados)
             </span>
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -188,15 +188,22 @@ export const ConsolaAnuncios: React.FC = () => {
                     <span className="capitalize">{a.canales}</span>
                   </td>
                   <td className="p-3.5">
-                    {a.estado === 'publicado' ? (
-                      <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Publicado
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          a.estado === 'publicado' ? 'bg-emerald-500' : 'bg-slate-400'
+                        }`}
+                      />
+                      <span
+                        className={
+                          a.estado === 'publicado'
+                            ? 'text-emerald-700 dark:text-emerald-400 font-semibold'
+                            : 'text-slate-600 dark:text-slate-400'
+                        }
+                      >
+                        {a.estado === 'publicado' ? 'Publicado' : a.estado}
                       </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">
-                        {a.estado}
-                      </span>
-                    )}
+                    </span>
                   </td>
                   <td className="p-3.5 text-center font-semibold text-[#1565C0] dark:text-[#3FA2E8]">
                     {a.enviados}
