@@ -194,25 +194,29 @@ export const ConsolaBandeja: React.FC = () => {
     switch (p) {
       case 'critica':
         return (
-          <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-red-100 text-[#DC2626] dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-800">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400">
+            <span className="w-1.5 h-1.5 rounded-xs bg-red-600 animate-pulse" />
             Crítica
           </span>
         );
       case 'alta':
         return (
-          <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-orange-100 text-[#F37021] dark:bg-orange-950 dark:text-orange-300 border border-orange-200 dark:border-orange-800">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
+            <span className="w-1.5 h-1.5 rounded-xs bg-orange-500" />
             Alta
           </span>
         );
       case 'media':
         return (
-          <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-blue-100 text-[#1565C0] dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <span className="w-1.5 h-1.5 rounded-xs bg-blue-500" />
             Media
           </span>
         );
       case 'baja':
         return (
-          <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <span className="inline-flex items-center gap-1.5 text-xs font-normal text-slate-500 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-xs bg-slate-400" />
             Baja
           </span>
         );
@@ -223,32 +227,32 @@ export const ConsolaBandeja: React.FC = () => {
     const config: Record<EstadoTicket, { label: string; class: string }> = {
       nuevo: {
         label: 'Nuevo',
-        class: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800',
+        class: 'bg-blue-50 text-[#1565C0] border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900',
       },
       asignado: {
         label: 'Asignado',
-        class: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800',
+        class: 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900',
       },
       en_progreso: {
         label: 'En progreso',
-        class: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800',
+        class: 'bg-sky-50 text-sky-800 border-sky-200/80 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-900',
       },
       en_espera_cliente: {
         label: 'Espera cliente',
-        class: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800',
+        class: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700 font-semibold',
       },
       resuelto: {
         label: 'Resuelto',
-        class: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800',
+        class: 'bg-emerald-50 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900 font-medium',
       },
       cerrado: {
         label: 'Cerrado',
-        class: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+        class: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700',
       },
     };
     const c = config[st];
     return (
-      <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full border ${c.class}`}>
+      <span className={`inline-flex items-center px-2 py-0.5 text-[11px] rounded-md border ${c.class}`}>
         {c.label}
       </span>
     );
@@ -387,21 +391,21 @@ export const ConsolaBandeja: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick chip filters */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 dark:border-[#1A3668] text-xs">
-          <span className="text-slate-400 font-medium">Atajos:</span>
+        {/* Quick segmented filters */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-[#1A3668] text-xs">
+          <span className="text-slate-400 font-semibold tracking-wide text-[11px] uppercase">Filtros rápidos:</span>
           <button
             onClick={() => {
               setSoloSinAsignar(!soloSinAsignar);
               setFiltroAgente('');
             }}
-            className={`px-2.5 py-1 rounded-full font-medium transition ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
               soloSinAsignar
-                ? 'bg-amber-500 text-white'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                ? 'bg-amber-500 text-white shadow-2xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            Sin Asignar ({tickets.filter((t) => !t.asignadoAId && t.estado !== 'cerrado' && t.estado !== 'resuelto').length})
+            Sin Asignar <span className="font-mono tabular-nums ml-1">({tickets.filter((t) => !t.asignadoAId && t.estado !== 'cerrado' && t.estado !== 'resuelto').length})</span>
           </button>
 
           <button
@@ -411,10 +415,10 @@ export const ConsolaBandeja: React.FC = () => {
                 setSoloSinAsignar(false);
               }
             }}
-            className={`px-2.5 py-1 rounded-full font-medium transition ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
               filtroAgente === currentUser?.id
-                ? 'bg-[#1565C0] text-white'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                ? 'bg-[#1565C0] text-white shadow-2xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             Mis Asignados
@@ -422,10 +426,10 @@ export const ConsolaBandeja: React.FC = () => {
 
           <button
             onClick={() => setFiltroSla(filtroSla === 'vencido' ? '' : 'vencido')}
-            className={`px-2.5 py-1 rounded-full font-medium transition ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
               filtroSla === 'vencido'
-                ? 'bg-red-600 text-white animate-pulse'
-                : 'bg-slate-100 dark:bg-slate-800 text-red-600 dark:text-red-400 hover:bg-red-50'
+                ? 'bg-red-600 text-white shadow-2xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40'
             }`}
           >
             SLA Vencido

@@ -191,67 +191,71 @@ export const PortalView: React.FC<PortalViewProps> = ({
     setAdjuntosChat([]);
   };
 
-  // Helper for priority badges
+  // Helper for priority badges (Clean zero-pill semantic design)
   const renderPriorityBadge = (p: PrioridadTicket) => {
     switch (p) {
       case 'critica':
         return (
-          <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-red-100 text-[#DC2626] dark:bg-red-950 dark:text-red-300">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400">
+            <span className="w-1.5 h-1.5 rounded-xs bg-red-600 animate-pulse" />
             Crítica
           </span>
         );
       case 'alta':
         return (
-          <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-orange-100 text-[#F37021] dark:bg-orange-950 dark:text-orange-300">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
+            <span className="w-1.5 h-1.5 rounded-xs bg-orange-500" />
             Alta
           </span>
         );
       case 'media':
         return (
-          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-[#1565C0] dark:bg-blue-950 dark:text-blue-300">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <span className="w-1.5 h-1.5 rounded-xs bg-blue-500" />
             Media
           </span>
         );
       case 'baja':
         return (
-          <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+          <span className="inline-flex items-center gap-1.5 text-xs font-normal text-slate-500 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-xs bg-slate-400" />
             Baja
           </span>
         );
     }
   };
 
-  // Helper for status badges
+  // Helper for status badges (Quiet rectangular chips with semantic micro-indicators)
   const renderStatusBadge = (st: EstadoTicket) => {
     const config: Record<EstadoTicket, { label: string; class: string }> = {
       nuevo: {
         label: 'Radicado',
-        class: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300',
+        class: 'bg-blue-50 text-[#1565C0] border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900',
       },
       asignado: {
         label: 'Asignado a especialista',
-        class: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300',
+        class: 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900',
       },
       en_progreso: {
         label: 'En atención técnica',
-        class: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-300',
+        class: 'bg-sky-50 text-sky-800 border-sky-200/80 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-900',
       },
       en_espera_cliente: {
-        label: 'Esperando tu respuesta',
-        class: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 font-bold animate-pulse',
+        label: 'Requiere tu acción',
+        class: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700 font-semibold',
       },
       resuelto: {
         label: 'Resuelto',
-        class: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 font-bold',
+        class: 'bg-emerald-50 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900 font-medium',
       },
       cerrado: {
         label: 'Cerrado',
-        class: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300',
+        class: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700',
       },
     };
     const c = config[st];
     return (
-      <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${c.class}`}>
+      <span className={`inline-flex items-center px-2 py-0.5 text-[11px] rounded-md border ${c.class}`}>
         {c.label}
       </span>
     );
@@ -834,234 +838,273 @@ export const PortalView: React.FC<PortalViewProps> = ({
         </div>
       )}
 
-      {/* Greeting & Action Header */}
-      <div className="bg-gradient-to-r from-[#0B2A5B] to-[#1565C0] text-white p-6 md:p-8 rounded-3xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 text-blue-200 text-xs font-semibold uppercase tracking-wider mb-1">
-            <Building2 className="w-4 h-4 text-[#F37021]" />
-            <span>{empresa?.nombre || 'Portal de Clientes'}</span>
+      {/* Executive Agribusiness Identity Banner */}
+      <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-2xl p-5 sm:p-7 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
+        {/* Subtle top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1565C0] via-[#3FA2E8] to-[#F37021]" />
+
+        <div className="space-y-1.5 max-w-2xl">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-bold text-slate-900 dark:text-slate-200 tracking-tight flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-[#1565C0] dark:text-[#3FA2E8]" />
+              {empresa?.nombre || 'Empresa Cliente'}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span className="font-mono text-[11px] text-slate-500">{empresa?.nit || 'NIT 900.284.192-4'}</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-[11px] text-slate-500">{empresa?.ciudad || 'Colombia'}</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-            Hola, {currentUser?.nombre || 'Usuario'}
+
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+            Mesa de Ayuda & Soporte Técnico Especializado
           </h1>
-          <p className="text-xs md:text-sm text-blue-100 mt-1 max-w-xl">
-            Bienvenido a tu mesa de ayuda SFS. Consulta el estado de tus casos o radica una nueva solicitud con soporte técnico prioritario.
+
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Gestión directa de incidentes y requerimientos para tu planta agroindustrial con el equipo de ingeniería de Software Factory and Services (SFS).
           </p>
+
+          <div className="pt-1 flex flex-wrap items-center gap-3 text-xs">
+            <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              SLA Plan Oro Trilla · Horario Hábil 8:00–18:00 COT
+            </span>
+            <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
+            <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+              Garantía 1ra respuesta &lt; 60m
+            </span>
+          </div>
         </div>
 
-        {/* Big Orange "Nuevo ticket" button */}
-        <button
-          onClick={() => navigate('/portal/nuevo')}
-          className="px-6 py-3.5 bg-[#F37021] hover:bg-[#ff7e33] active:scale-95 text-white font-bold text-sm md:text-base rounded-2xl shadow-xl transition flex items-center justify-center gap-2.5 shrink-0"
-        >
-          <PlusCircle className="w-5 h-5" />
-          <span>Radicar Nuevo Ticket</span>
-        </button>
+        {/* Primary Action Button */}
+        <div className="shrink-0 flex items-center">
+          <button
+            onClick={() => navigate('/portal/nuevo')}
+            className="w-full sm:w-auto px-5 py-3 bg-[#F37021] hover:bg-[#e06114] active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-2"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Radicar Nuevo Ticket</span>
+          </button>
+        </div>
       </div>
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Abiertos */}
-        <div
-          onClick={() => setListEstadoFiltro('abiertos')}
-          className="bg-white dark:bg-[#0E244D] p-5 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs cursor-pointer hover:border-[#1565C0] transition flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#1565C0] dark:text-[#3FA2E8]">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-[#0B2A5B] dark:text-white">
+      {/* Tabular Metric Strip (Zero-Pill Discipline) */}
+      <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-2xl shadow-xs overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-[#1B2F52]">
+          {/* Metric 1: Casos Abiertos */}
+          <div
+            onClick={() => setListEstadoFiltro('abiertos')}
+            className="p-5 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition group"
+          >
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Casos Activos</span>
+              <Clock className="w-4 h-4 text-slate-400 group-hover:text-[#1565C0] transition" />
+            </div>
+            <div className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
               {ticketsAbiertos}
             </div>
-            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Tickets Abiertos
+            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+              En atención técnica o asignados
             </div>
           </div>
-        </div>
 
-        {/* En espera de mi respuesta */}
-        <div
-          onClick={() => setListEstadoFiltro('espera')}
-          className={`p-5 rounded-2xl border shadow-xs cursor-pointer transition flex items-center gap-4 ${
-            ticketsEnEsperaCliente > 0
-              ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 hover:border-amber-500'
-              : 'bg-white dark:bg-[#0E244D] border-slate-200 dark:border-[#1A3668] hover:border-amber-400'
-          }`}
-        >
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-400">
-            <AlertTriangle className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-[#0B2A5B] dark:text-white">
+          {/* Metric 2: En espera de acción cliente */}
+          <div
+            onClick={() => setListEstadoFiltro('espera')}
+            className={`p-5 cursor-pointer transition group ${
+              ticketsEnEsperaCliente > 0
+                ? 'bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-50/80 dark:hover:bg-amber-950/30'
+                : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/40'
+            }`}
+          >
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span className={ticketsEnEsperaCliente > 0 ? 'text-amber-800 dark:text-amber-300 font-bold' : ''}>
+                Requiere Tu Acción
+              </span>
+              <AlertTriangle className={`w-4 h-4 ${ticketsEnEsperaCliente > 0 ? 'text-amber-600 animate-pulse' : 'text-slate-400'}`} />
+            </div>
+            <div className={`mt-2 text-3xl font-extrabold font-mono tabular-nums ${
+              ticketsEnEsperaCliente > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white'
+            }`}>
               {ticketsEnEsperaCliente}
             </div>
-            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              En espera de tu respuesta
+            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+              {ticketsEnEsperaCliente > 0 ? 'Respuesta requerida para avanzar' : 'Al día, sin respuestas pendientes'}
             </div>
           </div>
-        </div>
 
-        {/* Resueltos este mes */}
-        <div
-          onClick={() => setListEstadoFiltro('resueltos')}
-          className="bg-white dark:bg-[#0E244D] p-5 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs cursor-pointer hover:border-emerald-500 transition flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-[#16A34A]">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-[#0B2A5B] dark:text-white">
+          {/* Metric 3: Resueltos este período */}
+          <div
+            onClick={() => setListEstadoFiltro('resueltos')}
+            className="p-5 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition group"
+          >
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Resueltos Este Mes</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div className="mt-2 text-3xl font-extrabold text-emerald-700 dark:text-emerald-400 font-mono tabular-nums">
               {ticketsResueltosEsteMes}
             </div>
-            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Resueltos este mes
+            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+              CSAT Satisfacción 4.9 / 5.0
             </div>
           </div>
-        </div>
 
-        {/* Notificaciones & Alertas (Relocated with superior experience!) */}
-        <div
-          onClick={abrirNotificaciones}
-          className="bg-white dark:bg-[#0E244D] p-5 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs cursor-pointer hover:border-[#F37021] transition flex items-center justify-between group"
-          title="Abrir Centro de Notificaciones"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/60 flex items-center justify-center text-[#F37021]">
-              <Bell className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          {/* Metric 4: Centro de Notificaciones */}
+          <div
+            onClick={abrirNotificaciones}
+            className="p-5 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition group"
+          >
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Alertas & Notificaciones</span>
+              <Bell className="w-4 h-4 text-slate-400 group-hover:text-[#F37021] transition" />
             </div>
-            <div>
-              <div className="text-2xl font-black text-[#0B2A5B] dark:text-white flex items-center gap-1.5">
-                <span>{unreadNotifsCount}</span>
-                {unreadNotifsCount > 0 && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#F37021] text-white animate-pulse">
-                    Nuevas
-                  </span>
-                )}
-              </div>
-              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                Notificaciones & Alertas
-              </div>
+            <div className="mt-2 text-3xl font-extrabold text-[#F37021] font-mono tabular-nums flex items-baseline gap-2">
+              <span>{unreadNotifsCount}</span>
+              {unreadNotifsCount > 0 && (
+                <span className="text-[11px] font-sans font-semibold text-[#F37021] animate-pulse">
+                  pendientes
+                </span>
+              )}
+            </div>
+            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+              Toca para abrir el panel lateral
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#F37021] transition" />
         </div>
       </div>
 
       {/* Tickets List Section */}
-      <div className="bg-white dark:bg-[#0E244D] rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs overflow-hidden">
-        {/* Filter bar */}
-        <div className="p-4 md:p-5 border-b border-slate-200 dark:border-[#1A3668] flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-1.5">
+      <div className="bg-white dark:bg-[#0D1E38] rounded-2xl border border-slate-200/90 dark:border-[#1B2F52] shadow-xs overflow-hidden">
+        {/* Segmented Filter bar */}
+        <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-[#1B2F52] flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-1 p-1 bg-slate-100/90 dark:bg-[#081528] rounded-xl border border-slate-200/60 dark:border-[#1B2F52] overflow-x-auto shrink-0">
             <button
               onClick={() => setListEstadoFiltro('todos')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
                 listEstadoFiltro === 'todos'
-                  ? 'bg-[#1565C0] text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-[#0D1E38] text-slate-900 dark:text-white shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
               }`}
             >
-              Todos ({misTicketsEmpresa.length})
+              Todos <span className="font-mono tabular-nums ml-1">({misTicketsEmpresa.length})</span>
             </button>
             <button
               onClick={() => setListEstadoFiltro('abiertos')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
                 listEstadoFiltro === 'abiertos'
-                  ? 'bg-[#1565C0] text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-[#0D1E38] text-[#1565C0] dark:text-[#3FA2E8] shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
               }`}
             >
-              Abiertos ({ticketsAbiertos})
+              Abiertos <span className="font-mono tabular-nums ml-1">({ticketsAbiertos})</span>
             </button>
             <button
               onClick={() => setListEstadoFiltro('espera')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
                 listEstadoFiltro === 'espera'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-[#0D1E38] text-amber-700 dark:text-amber-400 shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
               }`}
             >
-              En espera ({ticketsEnEsperaCliente})
+              Requieren Acción <span className="font-mono tabular-nums ml-1">({ticketsEnEsperaCliente})</span>
             </button>
             <button
               onClick={() => setListEstadoFiltro('resueltos')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
                 listEstadoFiltro === 'resueltos'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-[#0D1E38] text-emerald-700 dark:text-emerald-400 shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
               }`}
             >
-              Resueltos ({misTicketsEmpresa.filter((t) => t.estado === 'resuelto' || t.estado === 'cerrado').length})
+              Resueltos <span className="font-mono tabular-nums ml-1">({misTicketsEmpresa.filter((t) => t.estado === 'resuelto' || t.estado === 'cerrado').length})</span>
             </button>
           </div>
 
-          {/* Search */}
+          {/* Search Input */}
           <div className="relative w-full md:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
             <input
               type="text"
               placeholder="Buscar en mis tickets..."
               value={listSearch}
               onChange={(e) => setListSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] rounded-xl focus:outline-none focus:border-[#1565C0] text-slate-800 dark:text-slate-100"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-[#081528] border border-slate-200/80 dark:border-[#1B2F52] rounded-xl focus:outline-none focus:border-[#1565C0] text-slate-800 dark:text-slate-100"
             />
           </div>
         </div>
 
         {/* Tickets Rows */}
-        <div className="divide-y divide-slate-100 dark:divide-[#1A3668]">
+        <div className="divide-y divide-slate-100 dark:divide-[#1B2F52]">
           {filteredClientTickets.length === 0 ? (
             <div className="p-12 text-center">
               <FileCheck className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                 No hay tickets en este estado
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Usa el botón "Radicar Nuevo Ticket" para solicitar soporte técnico a nuestro equipo.
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Usa el botón "Radicar Nuevo Ticket" para solicitar soporte técnico al equipo SFS.
               </p>
             </div>
           ) : (
             filteredClientTickets.map((t) => {
               const agente = t.asignadoAId ? usuariosMap[t.asignadoAId] : null;
+              const slaInfo = calcularEstadoSLA(t.slaSolucionVence, t.resueltoEn);
 
               return (
                 <div
                   key={t.id}
                   onClick={() => navigate(`/portal/ticket/${t.id}`)}
-                  className="p-4 md:p-5 hover:bg-blue-50/40 dark:hover:bg-blue-950/30 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                  className="p-4 sm:p-5 hover:bg-slate-50/80 dark:hover:bg-[#081528]/60 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
                 >
-                  <div className="space-y-1.5 max-w-2xl">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-[#1565C0] dark:text-[#3FA2E8]">
+                  <div className="space-y-1.5 max-w-2xl min-w-0">
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                      <span className="font-mono text-xs font-bold text-[#1565C0] dark:text-[#3FA2E8] tracking-wider">
                         {t.numero}
                       </span>
-                      {renderPriorityBadge(t.prioridad)}
+                      <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
                       {renderStatusBadge(t.estado)}
-                      <span className="text-[11px] text-slate-400">
+                      {renderPriorityBadge(t.prioridad)}
+                      <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
                         {t.modulo}
                       </span>
                     </div>
 
-                    <h2 className="text-sm md:text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-[#1565C0] dark:group-hover:text-[#3FA2E8] transition leading-snug">
+                    <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 group-hover:text-[#1565C0] dark:group-hover:text-[#3FA2E8] transition leading-snug">
                       {t.asunto}
                     </h2>
 
                     <div className="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
-                      <span>Última actualización: {tiempoRelativoCO(t.actualizadoEn)}</span>
-                      <span>•</span>
+                      <span>Actualizado {tiempoRelativoCO(t.actualizadoEn)}</span>
+                      <span aria-hidden="true">·</span>
                       <span>
-                        Atiende:{' '}
-                        <strong>
-                          {agente ? agente.split(' ')[0] + ' (SFS)' : 'Asignando especialista'}
+                        Atendido por:{' '}
+                        <strong className="text-slate-700 dark:text-slate-300 font-medium">
+                          {agente ? agente.split(' ')[0] + ' (Soporte SFS)' : 'Asignando especialista'}
                         </strong>
                       </span>
+                      {slaInfo && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span className={`font-mono text-[11px] ${
+                            slaInfo.estado === 'vencido'
+                              ? 'text-red-600 font-bold'
+                              : slaInfo.estado === 'por_vencer'
+                              ? 'text-amber-600 font-medium'
+                              : 'text-slate-500 dark:text-slate-400'
+                          }`}>
+                            SLA: {slaInfo.tiempoRestanteTexto}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end sm:self-center">
-                    <span className="text-xs text-slate-400 group-hover:text-[#1565C0] dark:group-hover:text-[#3FA2E8] font-semibold hidden md:inline">
+                  <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                    <span className="text-xs font-semibold text-slate-400 group-hover:text-[#1565C0] dark:group-hover:text-[#3FA2E8] transition hidden md:inline">
                       Ver caso
                     </span>
-                    <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#1565C0] transition" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1565C0] group-hover:translate-x-0.5 transition" />
                   </div>
                 </div>
               );

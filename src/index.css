@@ -3,52 +3,61 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-sfs-navy: #0B2A5B;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --color-sfs-navy: #0B2545;
   --color-sfs-blue: #1565C0;
   --color-sfs-sky: #3FA2E8;
   --color-sfs-orange: #F37021;
-  --color-sfs-bg: #F5F7FB;
+  --color-sfs-bg: #F8FAFC;
   --color-sfs-card: #FFFFFF;
-  --color-sfs-border: #E3E8F0;
-  --color-sfs-muted: #5B6B82;
+  --color-sfs-border: #E2E8F0;
+  --color-sfs-muted: #64748B;
   --color-sfs-success: #16A34A;
-  --color-sfs-warning: #F59E0B;
+  --color-sfs-warning: #D97706;
   --color-sfs-danger: #DC2626;
-  --color-sfs-dark-bg: #081B3A;
-  --color-sfs-dark-card: #0E244D;
-  --color-sfs-dark-border: #1A3668;
+  --color-sfs-dark-bg: #081528;
+  --color-sfs-dark-card: #0D1E38;
+  --color-sfs-dark-border: #1B2F52;
 }
 
 :root {
-  --sfs-navy: #0B2A5B;
+  --sfs-navy: #0B2545;
   --sfs-blue: #1565C0;
   --sfs-sky: #3FA2E8;
   --sfs-orange: #F37021;
-  --sfs-bg: #F5F7FB;
+  --sfs-bg: #F8FAFC;
   --sfs-card: #FFFFFF;
-  --sfs-border: #E3E8F0;
-  --sfs-muted: #5B6B82;
+  --sfs-border: #E2E8F0;
+  --sfs-muted: #64748B;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 .dark {
-  --sfs-bg: #081B3A;
-  --sfs-card: #0E244D;
-  --sfs-border: #1A3668;
+  --sfs-bg: #081528;
+  --sfs-card: #0D1E38;
+  --sfs-border: #1B2F52;
+}
+
+/* Tabular figures for all financial/metric numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Custom scrollbar for tickets and chat */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.5);
+  background: rgba(148, 163, 184, 0.5);
 }
 

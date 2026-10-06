@@ -174,30 +174,33 @@ export const Logo: React.FC<LogoProps> = ({
                   <span className={`h-[1px] w-3 ${dividerColorClass}`} />
                 </div>
 
-                {/* Service Desk pill badge */}
+                {/* Subtitle / Service Desk Descriptor */}
                 {showSubtitle && (
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-[#F37021] text-white shadow-2xs">
+                  <div className="flex items-center gap-1.5 mt-1 text-[9px] font-semibold text-slate-500 dark:text-slate-400">
+                    <span className="text-[#F37021] font-black tracking-wider uppercase">
                       Service Desk
                     </span>
-                    <span className="text-[9px] font-medium text-slate-400 dark:text-slate-300 hidden md:inline">
-                      Mesa de Ayuda
+                    <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">·</span>
+                    <span className="font-medium tracking-normal">
+                      Mesa de Ayuda ERP
                     </span>
                   </div>
                 )}
               </div>
 
               {/* MOBILE COMPACT LOCKUP (Screens < sm: Crisp & High Contrast) */}
-              <div className="flex sm:hidden flex-col leading-tight">
+              <div className="flex sm:hidden flex-col leading-tight select-none">
                 <div className="flex items-center gap-1 font-bold">
-                  <span className="text-sm font-black text-[#F37021] tracking-tight">SFS</span>
+                  <span className="text-xs font-black text-[#F37021] tracking-tight">SFS</span>
                   <span className={`text-xs font-extrabold ${titleColorClass}`}>
                     Service Desk
                   </span>
                 </div>
-                <span className={`text-[8.5px] font-semibold tracking-wider uppercase opacity-80 ${subtitleColorClass}`}>
-                  Software Factory
-                </span>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className={`text-[8.5px] font-semibold tracking-wider uppercase opacity-85 ${subtitleColorClass}`}>
+                    Software Factory
+                  </span>
+                </div>
               </div>
             </div>
           )}

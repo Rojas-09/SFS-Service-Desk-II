@@ -178,25 +178,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                     </button>
                   );
                 })}
-
-                {/* Notificaciones in Sidebar */}
-                <button
-                  onClick={() => {
-                    abrirNotificaciones();
-                    if (onCloseMobile) onCloseMobile();
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-[#12366E] hover:text-white transition-all"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Bell className="w-4 h-4 text-[#F37021]" />
-                    <span>Notificaciones</span>
-                  </div>
-                  {unreadNotifsCount > 0 && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#F37021] text-white">
-                      {unreadNotifsCount}
-                    </span>
-                  )}
-                </button>
               </nav>
             </div>
 
@@ -229,17 +210,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                   );
                 })}
               </nav>
-            </div>
-
-            {/* Switch to Client Portal shortcut */}
-            <div className="pt-2">
-              <button
-                onClick={() => handleNav('/portal')}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-blue-200 hover:text-white bg-[#081B3A]/60 hover:bg-[#12366E] rounded-xl border border-[#1A4585] transition"
-              >
-                <ExternalLink className="w-3.5 h-3.5 text-[#F37021]" />
-                <span>Ver Portal del Cliente</span>
-              </button>
             </div>
           </div>
         </div>
