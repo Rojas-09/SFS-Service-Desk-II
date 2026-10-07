@@ -15,6 +15,7 @@ import {
   CategoriaTicket,
   ModuloAfectado,
   Adjunto,
+  EmailSimulado,
 } from '../types';
 import {
   MOCK_EMPRESAS,
@@ -29,7 +30,13 @@ import {
   CONFIG_SISTEMA_DEFAULT,
 } from '../lib/mock-data';
 import { getCurrentUser, setCurrentUser as setStoredCurrentUser } from '../lib/auth';
-import { crearNotificacionTicket } from '../lib/notificaciones';
+import {
+  crearNotificacionTicket,
+  servicioNotificaciones,
+  obtenerHistorialCorreosSimulados,
+  limpiarHistorialCorreosSimulados,
+  suscribirAEnvioCorreos,
+} from '../lib/notificaciones';
 
 interface ToastItem {
   id: string;
@@ -105,6 +112,10 @@ interface AppContextType {
   marcarTodasNotificacionesLeidas: () => void;
   eliminarNotificacion: (id: string) => void;
   limpiarNotificacionesLeidas: () => void;
+
+  // Servicio de Correos Simulados
+  correosSimulados: EmailSimulado[];
+  limpiarCorreosSimulados: () => void;
 
   // Toasts
   toasts: ToastItem[];
@@ -243,6 +254,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Global Notification Drawer State
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false);
+
+  // Historial reactivo de correos simulados
+  const [correosSimulados, setCorreosSimulados] = useState<EmailSimulado[]>(() =>
+    obtenerHistorialCorreosSimulados()
+  );
+
+  useEffect(() => {
+    const unsub = suscribirAEnvioCorreos((nuevoCorreo) => {
+      setCorreosSimulados((prev) => [nuevoCorreo, ...prev].slice(0, 100));
+    });
+    return unsub;
+  }, []);
+
+  const limpiarCorreosSimulados = () => {
+    limpiarHistorialCorreosSimulados();
+    setCorreosSimulados([]);
+    showToast('Historial de correos simulados reiniciado', 'info');
+  };
   const abrirNotificaciones = () => setNotificacionesAbiertas(true);
   const cerrarNotificaciones = () => setNotificacionesAbiertas(false);
 
@@ -407,20 +436,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setMensajes((prev) => [...prev, primerMensaje]);
     setEventos((prev) => [...prev, nuevoEvento]);
 
-    // Notificar al supervisor y al agente asignado
+    // Despachar evento a través del servicio de notificaciones simulado
+    const empresaTicket = empresas.find((e) => e.id === currentUser.empresaId);
     const supervisores = usuarios.filter((u) => u.rol === 'supervisor' || u.rol === 'admin');
-    supervisores.forEach((sup) => {
-      const notif = crearNotificacionTicket(sup, 'ticket_nuevo', nuevoTicket);
-      setNotificaciones((prev) => [notif, ...prev]);
-    });
+    const agenteAsignado = asignadoAId ? usuarios.find((u) => u.id === asignadoAId) : undefined;
 
-    if (asignadoAId) {
-      const agente = usuarios.find((u) => u.id === asignadoAId);
-      if (agente) {
-        const notif = crearNotificacionTicket(agente, 'ticket_asignado', nuevoTicket);
-        setNotificaciones((prev) => [notif, ...prev]);
-      }
-    }
+    servicioNotificaciones
+      .despacharEventoTicketCreado({
+        ticket: nuevoTicket,
+        creador: currentUser,
+        supervisores,
+        agenteAsignado,
+        nombreEmpresa: empresaTicket?.nombre,
+      })
+      .then(({ notificaciones: nuevasNotifs }) => {
+        if (nuevasNotifs.length > 0) {
+          setNotificaciones((prev) => [...nuevasNotifs, ...prev]);
+        }
+      })
+      .catch((err) => console.error('Error despachando notificaciones de ticket creado:', err));
 
     showToast(`Ticket ${numero} radicado exitosamente`, 'exito');
     return nuevoTicket;
@@ -468,8 +502,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setEventos((prev) => [...prev, evento]);
 
     if (agente && agente.id !== currentUser?.id) {
-      const notif = crearNotificacionTicket(agente, 'ticket_asignado', ticket);
-      setNotificaciones((prev) => [notif, ...prev]);
+      const empresaTicket = empresas.find((e) => e.id === ticket.empresaId);
+      servicioNotificaciones
+        .despacharEventoTicketAsignado({
+          ticket,
+          agente,
+          asignadoPor: currentUser || undefined,
+          nombreEmpresa: empresaTicket?.nombre,
+        })
+        .then(({ notificaciones: nuevasNotifs }) => {
+          if (nuevasNotifs.length > 0) {
+            setNotificaciones((prev) => [...nuevasNotifs, ...prev]);
+          }
+        })
+        .catch((err) => console.error('Error despachando asignación:', err));
     }
 
     showToast(agenteId ? `Ticket asignado a ${agente?.nombre}` : 'Ticket desasignado', 'exito');
@@ -523,9 +569,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Notificar al creador si es resuelto
     if (esResuelto) {
       const creador = usuarios.find((u) => u.id === ticket.creadoPorId);
+      const agente = ticket.asignadoAId ? usuarios.find((u) => u.id === ticket.asignadoAId) : undefined;
+      const empresaTicket = empresas.find((e) => e.id === ticket.empresaId);
       if (creador) {
-        const notif = crearNotificacionTicket(creador, 'ticket_resuelto', ticket);
-        setNotificaciones((prev) => [notif, ...prev]);
+        servicioNotificaciones
+          .despacharEventoTicketResuelto({
+            ticket,
+            cliente: creador,
+            agente,
+            nombreEmpresa: empresaTicket?.nombre,
+          })
+          .then(({ notificaciones: nuevasNotifs }) => {
+            if (nuevasNotifs.length > 0) {
+              setNotificaciones((prev) => [...nuevasNotifs, ...prev]);
+            }
+          })
+          .catch((err) => console.error('Error despachando resolución:', err));
       }
     }
 
@@ -642,22 +701,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       // Notify other party
       if (!interno) {
-        if (currentUser.rol === 'cliente') {
-          // Notify assigned agent
-          if (ticket.asignadoAId) {
-            const agente = usuarios.find((u) => u.id === ticket.asignadoAId);
-            if (agente) {
-              const notif = crearNotificacionTicket(agente, 'nueva_respuesta', ticket, `${currentUser.nombre} ha comentado.`);
-              setNotificaciones((prev) => [notif, ...prev]);
-            }
-          }
-        } else {
-          // Notify client
-          const cliente = usuarios.find((u) => u.id === ticket.creadoPorId);
-          if (cliente) {
-            const notif = crearNotificacionTicket(cliente, 'nueva_respuesta', ticket, `${currentUser.nombre} (SFS) ha respondido.`);
-            setNotificaciones((prev) => [notif, ...prev]);
-          }
+        const empresaTicket = empresas.find((e) => e.id === ticket.empresaId);
+        const destinatario = currentUser.rol === 'cliente'
+          ? (ticket.asignadoAId
+              ? usuarios.find((u) => u.id === ticket.asignadoAId)
+              : usuarios.find((u) => u.rol === 'supervisor' || u.rol === 'admin'))
+          : usuarios.find((u) => u.id === ticket.creadoPorId);
+
+        if (destinatario) {
+          servicioNotificaciones
+            .despacharEventoRespuesta({
+              ticket,
+              remitente: currentUser,
+              destinatario,
+              esNotaInterna: false,
+              cuerpoMensaje: cuerpo,
+              nombreEmpresa: empresaTicket?.nombre,
+            })
+            .then(({ notificaciones: nuevasNotifs }) => {
+              if (nuevasNotifs.length > 0) {
+                setNotificaciones((prev) => [...nuevasNotifs, ...prev]);
+              }
+            })
+            .catch((err) => console.error('Error despachando respuesta:', err));
         }
       }
     }
@@ -723,33 +789,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const crearAnuncio = (datos: Omit<Anuncio, 'id' | 'enviados' | 'leidos' | 'creadoEn'>) => {
     const ahora = new Date().toISOString();
     const id = `anu-${Date.now()}`;
-    const totalUsuariosDestino = usuarios.filter((u) => u.rol === 'cliente').length;
+
+    // Determinar destinatarios según la segmentación
+    let destinatarios: Usuario[] = [];
+    if (datos.audiencia === 'todas') {
+      destinatarios = usuarios.filter((u) => u.rol === 'cliente');
+    } else if (datos.audiencia === 'empresas_seleccionadas' && datos.empresasIds) {
+      destinatarios = usuarios.filter(
+        (u) => u.rol === 'cliente' && u.empresaId && datos.empresasIds?.includes(u.empresaId)
+      );
+    } else if (datos.audiencia === 'por_rol' && datos.rolesDestino) {
+      destinatarios = usuarios.filter((u) => datos.rolesDestino?.includes(u.rol));
+    } else {
+      destinatarios = usuarios.filter((u) => u.rol === 'cliente');
+    }
 
     const nuevoAnuncio: Anuncio = {
       ...datos,
       id,
-      enviados: totalUsuariosDestino,
+      enviados: destinatarios.length,
       leidos: 0,
       creadoEn: ahora,
     };
 
     setAnuncios((prev) => [nuevoAnuncio, ...prev]);
 
-    // Despachar notificaciones
-    usuarios.filter((u) => u.rol === 'cliente').forEach((cli) => {
-      setNotificaciones((prev) => [
-        {
-          id: `notif-anu-${Date.now()}-${cli.id}`,
-          usuarioId: cli.id,
-          titulo: `Comunicado SFS: ${datos.titulo}`,
-          mensaje: 'Se ha publicado un nuevo anuncio en la mesa de ayuda.',
-          tipo: 'anuncio',
-          leida: false,
-          creadaEn: ahora,
-        },
-        ...prev,
-      ]);
-    });
+    // Despachar a través del servicio integrado de notificaciones
+    servicioNotificaciones
+      .despacharEventoAnuncio({
+        anuncio: nuevoAnuncio,
+        destinatarios,
+      })
+      .then(({ notificaciones: nuevasNotifs }) => {
+        if (nuevasNotifs.length > 0) {
+          setNotificaciones((prev) => [...nuevasNotifs, ...prev]);
+        }
+      })
+      .catch((err) => console.error('Error despachando anuncio:', err));
 
     showToast('Anuncio publicado a los clientes', 'exito');
   };
@@ -880,6 +956,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         marcarTodasNotificacionesLeidas,
         eliminarNotificacion,
         limpiarNotificacionesLeidas,
+        correosSimulados,
+        limpiarCorreosSimulados,
         toasts,
         showToast,
         removeToast,

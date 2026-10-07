@@ -164,12 +164,39 @@ export interface Anuncio {
   creadoEn: string;
 }
 
+export type TipoEventoNotificacion =
+  | 'ticket_nuevo'
+  | 'ticket_asignado'
+  | 'nueva_respuesta'
+  | 'sla_vencer'
+  | 'ticket_resuelto'
+  | 'ticket_reabierto'
+  | 'anuncio';
+
+export interface EmailSimulado {
+  id: string;
+  to: string;
+  toName: string;
+  from: string;
+  fromName: string;
+  subject: string;
+  bodyHtml: string;
+  bodyText: string;
+  evento: TipoEventoNotificacion;
+  ticketId?: string;
+  ticketNumero?: string;
+  anuncioId?: string;
+  estado: 'enviado' | 'entregado' | 'fallido';
+  fechaEnvio: string; // ISO Date
+  metadatos?: Record<string, unknown>;
+}
+
 export interface Notificacion {
   id: string;
   usuarioId: string;
   titulo: string;
   mensaje: string;
-  tipo: 'ticket_nuevo' | 'ticket_asignado' | 'nueva_respuesta' | 'sla_vencer' | 'ticket_resuelto' | 'anuncio';
+  tipo: TipoEventoNotificacion;
   ticketId?: string;
   leida: boolean;
   creadaEn: string;

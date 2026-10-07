@@ -10,7 +10,12 @@ import {
   Trash2,
   Calendar,
   ShieldCheck,
+  Mail,
+  Send,
+  CheckCircle2,
+  ExternalLink,
 } from 'lucide-react';
+import { enviarNotificacionPorCorreo } from '../../lib/notificaciones';
 
 export const ConsolaConfiguracion: React.FC = () => {
   const {
@@ -20,9 +25,14 @@ export const ConsolaConfiguracion: React.FC = () => {
     guardarMacros,
     config,
     guardarConfiguracion,
+    correosSimulados,
+    abrirNotificaciones,
+    currentUser,
+    showToast,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'sla' | 'macros' | 'horario'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'macros' | 'horario' | 'notificaciones'>('sla');
+  const [enviandoPrueba, setEnviandoPrueba] = useState(false);
 
   // SLA state
   const [localSla, setLocalSla] = useState<ReglaSLA[]>(reglasSla);
@@ -143,6 +153,21 @@ export const ConsolaConfiguracion: React.FC = () => {
         >
           <Calendar className="w-4 h-4 shrink-0" />
           <span>Horario Hábil & Asignación</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('notificaciones')}
+          className={`py-2 sm:py-2.5 px-3 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-lg ${
+            activeTab === 'notificaciones'
+              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/50 dark:bg-blue-950/30'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+          }`}
+        >
+          <Mail className="w-4 h-4 shrink-0" />
+          <span>Notificaciones & Correo</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono">
+            {correosSimulados.length}
+          </span>
         </button>
       </div>
 
@@ -418,6 +443,160 @@ export const ConsolaConfiguracion: React.FC = () => {
               <Save className="w-4 h-4" />
               <span>Guardar Parámetros de Operación</span>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: NOTIFICACIONES & CORREO SIMULADO */}
+      {activeTab === 'notificaciones' && (
+        <div className="bg-white dark:bg-[#0E244D] p-4 sm:p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-[#1A3668]/60">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-[#0B2A5B] dark:text-white flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#1565C0] dark:text-[#3FA2E8]" />
+                <span>Servicio Simulado de Notificaciones & SMTP (SFS Mailer)</span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Emite correos institucionales simulados y alertas in-app automáticas en cada etapa del ticket y comunicados
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Servicio Operativo
+              </span>
+            </div>
+          </div>
+
+          {/* Tarjetas de Estado y Métricas del Servicio */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] space-y-1">
+              <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold">Pasarela Activa</span>
+              <div className="font-extrabold text-sm text-[#0B2A5B] dark:text-white">Simulador SMTP Local</div>
+              <p className="text-slate-500 text-[11px]">Latencia estimada: 80ms • Persistencia en memoria y local</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] space-y-1">
+              <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold">Zona Horaria Oficial</span>
+              <div className="font-extrabold text-sm text-[#0B2A5B] dark:text-white">America/Bogota (COT)</div>
+              <p className="text-slate-500 text-[11px]">Formato legal colombiano en todas las cabeceras</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] space-y-1">
+              <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold">Correos en Salida</span>
+              <div className="font-extrabold text-sm text-[#1565C0] dark:text-[#3FA2E8]">
+                {correosSimulados.length} Mensajes Registrados
+              </div>
+              <p className="text-slate-500 text-[11px]">Disponibles para previsualización HTML interactiva</p>
+            </div>
+          </div>
+
+          {/* Eventos Automatizados Cubiertos */}
+          <div className="space-y-3">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-500">
+              Eventos Automáticos con Notificación Dual (In-App + Email Simulado)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl border border-blue-100 dark:border-[#1A3668] bg-blue-50/40 dark:bg-[#081B3A]/40 flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-[#1565C0] shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#0B2A5B] dark:text-white">Radicación de Ticket</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
+                    Confirma el número de caso al cliente y envía alerta prioritaria a los supervisores de soporte.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-purple-100 dark:border-[#1A3668] bg-purple-50/40 dark:bg-[#081B3A]/40 flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-purple-700 shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#0B2A5B] dark:text-white">Asignación de Especialista</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
+                    Notifica al agente con los datos del caso, prioridad y tiempo de primera respuesta restante.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-sky-100 dark:border-[#1A3668] bg-sky-50/40 dark:bg-[#081B3A]/40 flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-sky-100 dark:bg-sky-900/60 text-sky-700 shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#0B2A5B] dark:text-white">Respuestas en Conversación</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
+                    Envía el extracto del mensaje al cliente o especialista (las notas internas se mantienen 100% confidenciales).
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-emerald-100 dark:border-[#1A3668] bg-emerald-50/40 dark:bg-[#081B3A]/40 flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#0B2A5B] dark:text-white">Solución de Ticket & Encuesta CSAT</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
+                    Invita al cliente a calificar el servicio de 1 a 5 estrellas con botón directo al portal.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Consola de Pruebas en Vivo */}
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 className="font-bold text-[#0B2A5B] dark:text-white text-xs sm:text-sm">
+                Probar Despacho de Correo Simulado
+              </h4>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                Envía un correo de prueba inmediato para verificar la plantilla corporativa SFS y la bandeja de salida.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                disabled={enviandoPrueba}
+                onClick={async () => {
+                  setEnviandoPrueba(true);
+                  try {
+                    const destinatario = currentUser?.email || 'admin@sfs.com.co';
+                    const nombre = currentUser ? `${currentUser.nombre} ${currentUser.apellidos}` : 'Administrador SFS';
+                    await enviarNotificacionPorCorreo({
+                      to: destinatario,
+                      toName: nombre,
+                      subject: `[SFS Service Desk] Prueba de Pasarela de Correo • ${new Date().toLocaleTimeString('es-CO')}`,
+                      bodyText: 'Este es un mensaje de prueba emitido desde la Consola de Configuración de la Mesa de Ayuda SFS.',
+                      evento: 'ticket_nuevo',
+                    });
+                    showToast('Correo de prueba despachado con éxito', 'exito');
+                  } catch (e) {
+                    showToast('Error al simular envío', 'error');
+                  } finally {
+                    setEnviandoPrueba(false);
+                  }
+                }}
+                className="w-full sm:w-auto px-4 py-2 bg-[#1565C0] hover:bg-[#1976D2] text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{enviandoPrueba ? 'Despachando...' : 'Enviar Prueba SMTP'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={abrirNotificaciones}
+                className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-[#0B1E3B] border border-slate-200 dark:border-[#1A3668] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Ver Bandeja de Salida</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
