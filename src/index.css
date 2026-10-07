@@ -76,6 +76,11 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* Touch & Mobile UX Optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Custom scrollbar for tickets and chat */
 ::-webkit-scrollbar {
   width: 6px;
@@ -91,4 +96,54 @@ textarea {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.6);
+}
+
+/* Novel, high-end enterprise micro-animations */
+@keyframes slaBreathingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(244, 63, 94, 0);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes liveRadar {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes subtleShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-sla-breathing {
+  animation: slaBreathingPulse 2.5s infinite ease-in-out;
+}
+
+.animate-radar-ring {
+  animation: liveRadar 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.shimmer-active {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: subtleShimmer 3s infinite linear;
 }

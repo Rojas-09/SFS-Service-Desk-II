@@ -15,6 +15,7 @@ import {
   ExternalLink,
   ShieldCheck,
   Bell,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -124,23 +125,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
 
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* Mobile and Tablet backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-xs"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-xs"
           onClick={onCloseMobile}
         />
       )}
 
       <aside
-        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-[#0B2A5B] text-slate-100 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 border-r border-[#153B75] ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        className={`fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-[#0B2A5B] text-slate-100 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 border-r border-[#153B75] ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* Top: Logo */}
         <div>
-          <div className="p-4 border-b border-[#153B75]/70 flex items-center justify-between">
-            <Logo size="md" variant="light" />
+          {/* Top: Brand Logo & Mobile Close */}
+          <div className="border-b border-[#153B75]/70 shrink-0">
+            <div className="px-3.5 py-3.5 flex items-center justify-between gap-2">
+              <div
+                onClick={() => handleNav('/consola/bandeja')}
+                className="cursor-pointer hover:opacity-90 transition min-w-0 flex-1 overflow-hidden select-none"
+                title="Ir a Bandeja Principal"
+              >
+                <Logo size="sm" showSubtitle={false} variant="light" />
+              </div>
+              {onCloseMobile && (
+                <button
+                  onClick={onCloseMobile}
+                  className="lg:hidden p-1.5 text-slate-300 hover:text-white hover:bg-[#153B75] rounded-xl transition active:scale-90 shrink-0"
+                  aria-label="Cerrar menú lateral"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Navigation */}
@@ -158,7 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                     <button
                       key={item.id}
                       onClick={() => handleNav(item.path)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                      className={`w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-xl text-xs font-medium transition-all active:scale-[0.98] ${
                         isActive
                           ? 'bg-[#1565C0] text-white font-semibold shadow-md'
                           : 'text-slate-200 hover:bg-[#12366E] hover:text-white'
@@ -195,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                     <button
                       key={item.id}
                       onClick={() => handleNav(item.path)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                      className={`w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-xl text-xs font-medium transition-all active:scale-[0.98] ${
                         isActive
                           ? 'bg-[#1565C0] text-white font-semibold shadow-md'
                           : 'text-slate-200 hover:bg-[#12366E] hover:text-white'

@@ -151,7 +151,7 @@ export const ConsolaAnuncios: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+          <table className="w-full min-w-[700px] text-left text-xs text-slate-700 dark:text-slate-200">
             <thead className="bg-slate-50 dark:bg-[#081B3A] text-slate-500 font-semibold border-b border-slate-200 dark:border-[#1A3668]">
               <tr>
                 <th className="p-3.5">Título & Mensaje</th>

@@ -95,6 +95,7 @@ interface AppContextType {
   // Companies & Users
   guardarEmpresa: (empresa: Empresa) => void;
   guardarUsuario: (usuario: Usuario) => void;
+  eliminarUsuario: (id: string) => void;
   guardarConfiguracion: (nuevaConfig: ConfiguracionSistema) => void;
   guardarReglasSla: (reglas: ReglaSLA[]) => void;
   guardarMacros: (macros: MacroRespuesta[]) => void;
@@ -780,6 +781,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(`Usuario "${usuario.nombre} ${usuario.apellidos}" guardado`, 'exito');
   };
 
+  const eliminarUsuario = (id: string) => {
+    setUsuarios((prev) => prev.filter((u) => u.id !== id));
+    showToast('Usuario eliminado del sistema', 'info');
+  };
+
   const guardarConfiguracion = (nuevaConfig: ConfiguracionSistema) => {
     setConfig(nuevaConfig);
     try {
@@ -866,6 +872,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         eliminarAnuncio,
         guardarEmpresa,
         guardarUsuario,
+        eliminarUsuario,
         guardarConfiguracion,
         guardarReglasSla,
         guardarMacros,

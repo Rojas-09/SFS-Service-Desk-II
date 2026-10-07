@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   EstadoTicket,
   PrioridadTicket,
@@ -72,6 +73,8 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
 
   // Right sidebar tab: 'ficha' | 'historial' | 'relacionados'
   const [fichaTab, setFichaTab] = useState<'ficha' | 'historial' | 'relacionados'>('ficha');
+  // Mobile responsive section: 'hilo' | 'ficha'
+  const [mobileSection, setMobileSection] = useState<'hilo' | 'ficha'>('hilo');
 
   if (!ticket) {
     return (
@@ -237,10 +240,34 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
         </div>
       </div>
 
+      {/* Mobile Tab Switcher (< lg: Phones & Tablets) */}
+      <div className="lg:hidden flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl mb-1">
+        <button
+          onClick={() => setMobileSection('hilo')}
+          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition active:scale-95 ${
+            mobileSection === 'hilo'
+              ? 'bg-white dark:bg-[#0E244D] text-[#1565C0] dark:text-[#3FA2E8] shadow-xs'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          Conversación ({ticketMensajes.length})
+        </button>
+        <button
+          onClick={() => setMobileSection('ficha')}
+          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition active:scale-95 ${
+            mobileSection === 'ficha'
+              ? 'bg-white dark:bg-[#0E244D] text-[#1565C0] dark:text-[#3FA2E8] shadow-xs'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          Ficha & SLA
+        </button>
+      </div>
+
       {/* Split panel layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* LEFT PANEL: Conversation Thread & Editor (Cols 1-8) */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className={`${mobileSection === 'hilo' ? 'block' : 'hidden'} lg:block lg:col-span-8 space-y-4`}>
           {/* Thread messages container */}
           <div className="bg-white dark:bg-[#0E244D] rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs p-4 space-y-4 min-h-[400px]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#1A3668]">
@@ -511,7 +538,7 @@ export const ConsolaTicketDetail: React.FC<ConsolaTicketDetailProps> = ({ ticket
         </div>
 
         {/* RIGHT PANEL: Ficha / SLA / Audit / Related (Cols 9-12) */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className={`${mobileSection === 'ficha' ? 'block' : 'hidden'} lg:block lg:col-span-4 space-y-4`}>
           {/* Tabs for right panel */}
           <div className="flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl">
             <button

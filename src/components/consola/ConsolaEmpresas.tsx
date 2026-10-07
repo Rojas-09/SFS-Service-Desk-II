@@ -108,7 +108,7 @@ export const ConsolaEmpresas: React.FC = () => {
       </div>
 
       {/* Grid of companies */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {empresas.map((emp) => {
           const ticketsEmpresa = tickets.filter((t) => t.empresaId === emp.id);
           const abiertos = ticketsEmpresa.filter(
@@ -121,39 +121,39 @@ export const ConsolaEmpresas: React.FC = () => {
               className="bg-white dark:bg-[#0E244D] p-5 rounded-2xl border border-slate-200 dark:border-[#1A3668] shadow-xs flex flex-col justify-between space-y-4 hover:border-[#1565C0] transition"
             >
               <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#0B2A5B] text-white flex items-center justify-center font-bold text-sm">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 mb-2">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-[#0B2A5B] text-white flex items-center justify-center font-bold text-sm shrink-0">
                       {emp.nombre.slice(0, 2).toUpperCase()}
                     </div>
-                    <div>
-                      <h2 className="text-sm md:text-base font-bold text-[#0B2A5B] dark:text-white leading-tight">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-sm md:text-base font-bold text-[#0B2A5B] dark:text-white leading-tight truncate" title={emp.nombre}>
                         {emp.nombre}
                       </h2>
                       <span className="text-xs text-slate-400 font-mono">NIT: {emp.nit}</span>
                     </div>
                   </div>
 
-                  <span className="font-mono text-xs font-bold text-slate-600 dark:text-slate-300">
+                  <span className="inline-flex self-start sm:self-auto items-center px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-blue-50 dark:bg-blue-950/80 text-[#1565C0] dark:text-blue-300 border border-blue-200 dark:border-blue-900 shrink-0">
                     Plan {emp.planSoporte}
                   </span>
                 </div>
 
                 {/* Company details */}
                 <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 mt-3 pt-3 border-t border-slate-100 dark:border-[#1A3668]">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>
+                    <span className="truncate">
                       {emp.direccion}, {emp.ciudad} ({emp.departamento})
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>{emp.telefono}</span>
+                    <span className="truncate">{emp.telefono}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>{emp.emailContacto}</span>
+                    <span className="truncate">{emp.emailContacto}</span>
                   </div>
                 </div>
               </div>

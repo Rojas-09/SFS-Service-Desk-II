@@ -18,6 +18,7 @@ import {
 import {
   exportarTicketsACSV,
 } from '../../lib/utils';
+import { exportarMetricasAPDF } from '../../lib/pdf-export';
 import {
   Download,
   Calendar,
@@ -30,6 +31,7 @@ import {
   AlertCircle,
   HelpCircle,
   Sparkles,
+  FileText,
 } from 'lucide-react';
 
 const SFS_COLORS = {
@@ -45,7 +47,7 @@ const SFS_COLORS = {
 const PIE_COLORS = ['#1565C0', '#F37021', '#3FA2E8', '#0B2A5B', '#16A34A', '#8B5CF6'];
 
 export const ConsolaMetricas: React.FC = () => {
-  const { tickets, empresas, usuarios } = useApp();
+  const { tickets, empresas, usuarios, showToast } = useApp();
 
   // Filters
   const [rangoDias, setRangoDias] = useState<number>(30); // 7, 30, 90
@@ -268,9 +270,41 @@ export const ConsolaMetricas: React.FC = () => {
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   const horasDia = [8, 9, 10, 11, 12, 14, 15, 16, 17];
 
-  // Export handler
+  // Export CSV handler
   const handleExportar = () => {
     exportarTicketsACSV(filteredTickets, empresasMap, usuariosMap);
+  };
+
+  // Export Monthly PDF Report handler
+  const handleExportarPDF = () => {
+    try {
+      const nombreEmpresaFiltro = empresaFiltro ? empresasMap[empresaFiltro] : undefined;
+      const resueltosCount = filteredTickets.filter(
+        (t) => t.estado === 'resuelto' || t.estado === 'cerrado'
+      ).length;
+
+      exportarMetricasAPDF({
+        tickets: filteredTickets,
+        empresasMap,
+        usuariosMap,
+        rangoDias,
+        empresaFiltroId: empresaFiltro,
+        nombreEmpresaFiltro,
+        metricas: {
+          totalCasos: filteredTickets.length,
+          totalAbiertos,
+          totalResueltos: resueltosCount,
+          promedioPrimeraRespH,
+          promedioSolucionH,
+          porcentajeSLA,
+          csatPromedio,
+        },
+      });
+      showToast('Reporte mensual de métricas en PDF generado exitosamente', 'exito');
+    } catch (err) {
+      console.error(err);
+      showToast('Error al generar el reporte PDF', 'error');
+    }
   };
 
   return (
@@ -317,86 +351,95 @@ export const ConsolaMetricas: React.FC = () => {
             ))}
           </select>
 
-          {/* CSV Export Button */}
+          {/* PDF Report Export Button (Primary) */}
+          <button
+            onClick={handleExportarPDF}
+            className="px-4 py-1.5 bg-[#F37021] hover:bg-[#e06114] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs active:scale-95"
+            title="Generar y descargar informe mensual oficial en PDF"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Exportar PDF</span>
+          </button>
+
+          {/* CSV Export Button (Secondary) */}
           <button
             onClick={handleExportar}
-            className="px-4 py-1.5 bg-[#1565C0] hover:bg-[#1976D2] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs"
+            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 active:scale-95"
+            title="Exportar datos a CSV"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Exportar CSV</span>
+            <span>CSV</span>
           </button>
         </div>
       </div>
 
-      {/* Unified Tabular Metric Strip (Zero-Pill Architecture) */}
-      <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-2xl shadow-xs overflow-hidden">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-[#1B2F52]">
-          {/* 1. Casos Abiertos */}
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Casos Abiertos
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-[#0B2A5B] dark:text-white font-mono tabular-nums">
-              {totalAbiertos}
-            </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">En gestión activa</span>
+      {/* Unified Tabular Metric Strip (Responsive, Zero-Pill Architecture) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+        {/* 1. Casos Abiertos */}
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Casos Abiertos
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-[#0B2A5B] dark:text-white font-mono tabular-nums">
+            {totalAbiertos}
           </div>
+          <span className="text-[10px] text-slate-400 mt-0.5">En gestión activa</span>
+        </div>
 
-          {/* 2. Creados Hoy */}
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Creados Hoy
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-[#1565C0] dark:text-[#3FA2E8] font-mono tabular-nums">
-              {hoyTicketsCount}
-            </div>
-            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Flujo regular</span>
+        {/* 2. Creados Hoy */}
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Creados Hoy
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-[#1565C0] dark:text-[#3FA2E8] font-mono tabular-nums">
+            {hoyTicketsCount}
           </div>
+          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Flujo regular</span>
+        </div>
 
-          {/* 3. Promedio 1ra Respuesta */}
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              1ra Respuesta
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
-              {promedioPrimeraRespH}h
-            </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">Meta SLA: &lt;4h</span>
+        {/* 3. Promedio 1ra Respuesta */}
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            1ra Respuesta
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
+            {promedioPrimeraRespH}h
           </div>
+          <span className="text-[10px] text-slate-400 mt-0.5">Meta SLA: &lt;4h</span>
+        </div>
 
-          {/* 4. Tiempo Solución (MTTR) */}
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Tiempo Solución
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
-              {promedioSolucionH}h
-            </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">Horas hábiles CO</span>
+        {/* 4. Tiempo Solución (MTTR) */}
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Tiempo Solución
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
+            {promedioSolucionH}h
           </div>
+          <span className="text-[10px] text-slate-400 mt-0.5">Horas hábiles CO</span>
+        </div>
 
-          {/* 5. Cumplimiento SLA */}
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Cumplimiento SLA
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
-              {porcentajeSLA}%
-            </div>
-            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Meta: 90%</span>
+        {/* 5. Cumplimiento SLA */}
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Cumplimiento SLA
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
+            {porcentajeSLA}%
           </div>
+          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Meta: 90%</span>
+        </div>
 
-          {/* 6. CSAT Clientes */}
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              CSAT Clientes
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-amber-500 font-mono tabular-nums flex items-baseline gap-1">
-              <span>{csatPromedio}</span>
-              <span className="text-xs text-slate-400 font-sans font-normal">/ 5.0</span>
-            </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">Satisfacción promedio</span>
+        {/* 6. CSAT Clientes */}
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            CSAT Clientes
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-amber-500 font-mono tabular-nums flex items-baseline gap-1">
+            <span>{csatPromedio}</span>
+            <span className="text-xs text-slate-400 font-sans font-normal">/ 5.0</span>
           </div>
+          <span className="text-[10px] text-slate-400 mt-0.5">Satisfacción promedio</span>
         </div>
       </div>
 

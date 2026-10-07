@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Ticket,
   EstadoTicket,
@@ -27,6 +28,8 @@ import {
   SlidersHorizontal,
   X,
   CheckCircle2,
+  HelpCircle,
+  UserCheck,
 } from 'lucide-react';
 
 const ESTADOS_KANBAN: { id: EstadoTicket; label: string; color: string }[] = [
@@ -73,6 +76,27 @@ export const ConsolaBandeja: React.FC = () => {
   const [filtroSla, setFiltroSla] = useState('');
   const [soloSinAsignar, setSoloSinAsignar] = useState(queryParams.filtro === 'sin_asignar');
 
+  // Synchronize filter states whenever query params in URL change
+  useEffect(() => {
+    if (queryParams.filtro === 'sin_asignar') {
+      setSoloSinAsignar(true);
+      setFiltroAgente('');
+    } else if (queryParams.filtro === 'mis_tickets') {
+      setSoloSinAsignar(false);
+      if (currentUser?.id) {
+        setFiltroAgente(currentUser.id);
+      }
+    } else if (queryParams.filtro === 'todos') {
+      setSoloSinAsignar(false);
+      setFiltroAgente('');
+      setFiltroPrioridad('');
+      setFiltroCategoria('');
+      setFiltroSla('');
+    } else if (!queryParams.filtro) {
+      setSoloSinAsignar(false);
+    }
+  }, [queryParams.filtro, currentUser?.id]);
+
   // Multi-selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loteAgenteId, setLoteAgenteId] = useState('');
@@ -93,9 +117,15 @@ export const ConsolaBandeja: React.FC = () => {
         if (!matchesNum && !matchesAsunto && !matchesDesc) return false;
       }
 
-      // Quick tab filters
-      if (soloSinAsignar && t.asignadoAId !== null) return false;
-      if (queryParams.filtro === 'mis_tickets' && t.asignadoAId !== currentUser?.id) return false;
+      // Quick tab & URL filters: Sin Asignar (strictly tickets without assigned agent)
+      const esSinAsignar = soloSinAsignar || queryParams.filtro === 'sin_asignar';
+      if (esSinAsignar) {
+        if (Boolean(t.asignadoAId)) return false;
+      }
+
+      // Quick tab & URL filters: Mis Tickets
+      const esMisTickets = queryParams.filtro === 'mis_tickets' || (filtroAgente === currentUser?.id && filtroAgente !== '');
+      if (esMisTickets && t.asignadoAId !== currentUser?.id) return false;
 
       // Select filters
       if (filtroEmpresa && t.empresaId !== filtroEmpresa) return false;
@@ -281,13 +311,23 @@ export const ConsolaBandeja: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-black text-[#0B2A5B] dark:text-white tracking-tight flex items-baseline gap-2">
-            <span>Bandeja de Tickets</span>
+            <span>
+              {soloSinAsignar || queryParams.filtro === 'sin_asignar'
+                ? 'Tickets Sin Asignar'
+                : queryParams.filtro === 'mis_tickets'
+                ? 'Mis Tickets Asignados'
+                : queryParams.filtro === 'todos'
+                ? 'Todos los Tickets'
+                : 'Bandeja Principal'}
+            </span>
             <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-400 tabular-nums">
               ({filteredTickets.length} de {tickets.length})
             </span>
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Cola de atención técnica en tiempo real con monitoreo de SLA Colombia
+            {soloSinAsignar || queryParams.filtro === 'sin_asignar'
+              ? 'Cola libre de tickets pendientes de asignación de especialista de soporte'
+              : 'Cola de atención técnica en tiempo real con monitoreo de SLA Colombia'}
           </p>
         </div>
 
@@ -320,78 +360,96 @@ export const ConsolaBandeja: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabular Metric Strip (Zero-Pill Discipline) */}
-      <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-2xl shadow-xs overflow-hidden">
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-[#1B2F52]">
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Casos Activos
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-[#0B2A5B] dark:text-white font-mono tabular-nums">
-              {totalActivos}
-            </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
-              En atención o asignados
-            </span>
+      {/* Metric Cards (Responsive, Zero-Pill Architecture) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Casos Activos
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-[#0B2A5B] dark:text-white font-mono tabular-nums">
+            {totalActivos}
           </div>
+          <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+            En atención o asignados
+          </span>
+        </div>
 
-          <div className="p-4 flex flex-col justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              En Progreso
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-[#1565C0] dark:text-[#3FA2E8] font-mono tabular-nums">
-              {enProgresoCount}
-            </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
-              Ingenieros trabajando
-            </span>
+        <div className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            En Progreso
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-[#1565C0] dark:text-[#3FA2E8] font-mono tabular-nums">
+            {enProgresoCount}
           </div>
+          <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+            Ingenieros trabajando
+          </span>
+        </div>
 
-          <div
-            onClick={() => setSoloSinAsignar(false)}
-            className="p-4 flex flex-col justify-between cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition"
-          >
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Espera de Cliente
-            </span>
-            <div className="mt-1 text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-mono tabular-nums">
-              {esperaClienteCount}
-            </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
-              Pendiente respuesta empresa
-            </span>
+        <div
+          onClick={() => setSoloSinAsignar(false)}
+          className="bg-white dark:bg-[#0D1E38] border border-slate-200/90 dark:border-[#1B2F52] rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between cursor-pointer hover:border-[#1565C0] transition"
+        >
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Espera de Cliente
+          </span>
+          <div className="mt-1 text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-mono tabular-nums">
+            {esperaClienteCount}
           </div>
+          <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+            Pendiente respuesta empresa
+          </span>
+        </div>
 
-          <div
-            onClick={() => setFiltroSla(filtroSla === 'vencido' ? '' : 'vencido')}
-            className={`p-4 flex flex-col justify-between cursor-pointer transition ${
-              slaCriticoCount > 0
-                ? 'bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/70'
-                : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/20'
-            }`}
-          >
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              slaCriticoCount > 0 ? 'text-rose-700 dark:text-rose-400 font-bold' : 'text-slate-500 dark:text-slate-400'
-            }`}>
-              SLA Crítico / Vencidos
-            </span>
-            <div className={`mt-1 text-2xl font-extrabold font-mono tabular-nums ${
-              slaCriticoCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'
-            }`}>
-              {slaCriticoCount}
-            </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
-              {slaCriticoCount > 0 ? 'Toca para filtrar urgentes' : 'Dentro del rango pactado'}
-            </span>
+        <div
+          onClick={() => setFiltroSla(filtroSla === 'vencido' ? '' : 'vencido')}
+          className={`border rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between cursor-pointer transition ${
+            slaCriticoCount > 0
+              ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900/60 hover:bg-rose-50/80'
+              : 'bg-white dark:bg-[#0D1E38] border-slate-200/90 dark:border-[#1B2F52] hover:border-[#1565C0]'
+          }`}
+        >
+          <span className={`text-[11px] font-semibold uppercase tracking-wider ${
+            slaCriticoCount > 0 ? 'text-rose-700 dark:text-rose-400 font-bold' : 'text-slate-500 dark:text-slate-400'
+          }`}>
+            SLA Crítico / Vencidos
+          </span>
+          <div className={`mt-1 text-2xl font-extrabold font-mono tabular-nums ${
+            slaCriticoCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'
+          }`}>
+            {slaCriticoCount}
           </div>
+          <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
+            {slaCriticoCount > 0 ? 'Toca para filtrar urgentes' : 'Dentro del rango pactado'}
+          </span>
         </div>
       </div>
 
+      {/* Active Filter Banner for Sin Asignar */}
+      {(soloSinAsignar || queryParams.filtro === 'sin_asignar') && (
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="font-bold">Filtro Sin Asignar Activo:</span>
+            <span>Mostrando únicamente los {filteredTickets.length} tickets en espera de asignación de especialista</span>
+          </div>
+          <button
+            onClick={() => {
+              setSoloSinAsignar(false);
+              navigate('/consola/bandeja');
+            }}
+            className="text-xs font-bold text-amber-700 dark:text-amber-300 hover:underline cursor-pointer"
+          >
+            Ver todos los tickets &rarr;
+          </button>
+        </div>
+      )}
+
       {/* Filter Toolbar */}
       <div className="bg-white dark:bg-[#0E244D] p-3.5 rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5">
           {/* Search */}
-          <div className="relative lg:col-span-2">
+          <div className="relative sm:col-span-2 md:col-span-3 xl:col-span-2">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
@@ -480,32 +538,54 @@ export const ConsolaBandeja: React.FC = () => {
           <span className="text-slate-400 font-semibold tracking-wide text-[11px] uppercase">Filtros rápidos:</span>
           <button
             onClick={() => {
-              setSoloSinAsignar(!soloSinAsignar);
-              setFiltroAgente('');
+              const actualmenteSinAsignar = soloSinAsignar || queryParams.filtro === 'sin_asignar';
+              const nuevoSinAsignar = !actualmenteSinAsignar;
+              setSoloSinAsignar(nuevoSinAsignar);
+              if (nuevoSinAsignar) {
+                setFiltroAgente('');
+                navigate('/consola/bandeja?filtro=sin_asignar');
+              } else {
+                navigate('/consola/bandeja');
+              }
             }}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-              soloSinAsignar
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
+              soloSinAsignar || queryParams.filtro === 'sin_asignar'
                 ? 'bg-amber-500 text-white shadow-2xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            Sin Asignar <span className="font-mono tabular-nums ml-1">({tickets.filter((t) => !t.asignadoAId && t.estado !== 'cerrado' && t.estado !== 'resuelto').length})</span>
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>Sin Asignar</span>
+            <span
+              className={`font-mono tabular-nums ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] ${
+                soloSinAsignar || queryParams.filtro === 'sin_asignar'
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              {tickets.filter((t) => !t.asignadoAId && t.estado !== 'cerrado' && t.estado !== 'resuelto').length}
+            </span>
           </button>
 
           <button
             onClick={() => {
-              if (currentUser?.id) {
-                setFiltroAgente(filtroAgente === currentUser.id ? '' : currentUser.id);
+              if (filtroAgente === currentUser?.id || queryParams.filtro === 'mis_tickets') {
+                setFiltroAgente('');
+                navigate('/consola/bandeja');
+              } else if (currentUser?.id) {
+                setFiltroAgente(currentUser.id);
                 setSoloSinAsignar(false);
+                navigate('/consola/bandeja?filtro=mis_tickets');
               }
             }}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-              filtroAgente === currentUser?.id
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
+              (filtroAgente === currentUser?.id && filtroAgente !== '') || queryParams.filtro === 'mis_tickets'
                 ? 'bg-[#1565C0] text-white shadow-2xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            Mis Asignados
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Mis Asignados</span>
           </button>
 
           <button
@@ -519,7 +599,7 @@ export const ConsolaBandeja: React.FC = () => {
             SLA Vencido
           </button>
 
-          {(search || filtroEmpresa || filtroAgente || filtroPrioridad || filtroSla || soloSinAsignar) && (
+          {(search || filtroEmpresa || filtroAgente || filtroPrioridad || filtroCategoria || filtroSla || soloSinAsignar || queryParams.filtro) && (
             <button
               onClick={() => {
                 setSearch('');
@@ -529,8 +609,9 @@ export const ConsolaBandeja: React.FC = () => {
                 setFiltroCategoria('');
                 setFiltroSla('');
                 setSoloSinAsignar(false);
+                navigate('/consola/bandeja');
               }}
-              className="text-xs text-[#1565C0] dark:text-[#3FA2E8] hover:underline ml-auto flex items-center gap-1 font-semibold"
+              className="text-xs text-[#1565C0] dark:text-[#3FA2E8] hover:underline ml-auto flex items-center gap-1 font-semibold cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Limpiar filtros</span>
@@ -609,8 +690,135 @@ export const ConsolaBandeja: React.FC = () => {
       {/* Main Content: Table or Kanban */}
       {viewMode === 'tabla' ? (
         <div className="bg-white dark:bg-[#0E244D] rounded-xl border border-slate-200 dark:border-[#1A3668] shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+          {/* Mobile Card Feed (< md: Phones & Portrait Tablets) */}
+          <div className="md:hidden divide-y divide-slate-100 dark:divide-[#1A3668]">
+            {filteredTickets.length === 0 ? (
+              <div className="p-8 text-center">
+                <AlertCircle className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  No se encontraron tickets
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Ajusta los filtros o la búsqueda para encontrar casos.
+                </p>
+              </div>
+            ) : (
+              filteredTickets.map((t) => {
+                const isSelected = selectedIds.includes(t.id);
+                const slaInfo = calcularEstadoSLA(t.slaSolucionVence, t.resueltoEn);
+                const empresaNombre = empresasMap[t.empresaId] || 'Empresa';
+                const agenteNombre = t.asignadoAId ? usuariosMap[t.asignadoAId] : null;
+
+                let prioBorder = 'border-l-4 border-l-slate-400';
+                if (t.prioridad === 'critica') prioBorder = 'border-l-4 border-l-rose-500';
+                else if (t.prioridad === 'alta') prioBorder = 'border-l-4 border-l-orange-500';
+                else if (t.prioridad === 'media') prioBorder = 'border-l-4 border-l-blue-500';
+
+                return (
+                  <div
+                    key={t.id}
+                    className={`p-3.5 transition-all ${prioBorder} ${
+                      isSelected
+                        ? 'bg-blue-50/70 dark:bg-blue-950/60'
+                        : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 active:bg-blue-50/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleToggleSelectOne(t.id)}
+                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
+                          aria-label="Seleccionar caso"
+                        >
+                          {isSelected ? (
+                            <CheckSquare className="w-4 h-4 text-[#1565C0] dark:text-[#3FA2E8]" />
+                          ) : (
+                            <Square className="w-4 h-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => navigate(`/consola/ticket/${t.id}`)}
+                          className="font-mono font-bold text-xs text-[#1565C0] dark:text-[#3FA2E8] hover:underline"
+                        >
+                          {t.numero}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {getEstadoBadge(t.estado)}
+                        <span
+                          className={`inline-flex items-center gap-1 font-mono text-[10px] tabular-nums font-semibold px-2 py-0.5 rounded-md ${
+                            slaInfo.estado === 'vencido'
+                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 animate-sla-breathing'
+                              : slaInfo.estado === 'por_vencer'
+                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                          }`}
+                        >
+                          <Clock className="w-3 h-3 shrink-0" />
+                          <span>{slaInfo.tiempoRestanteTexto}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Asunto & Modulo */}
+                    <div
+                      onClick={() => navigate(`/consola/ticket/${t.id}`)}
+                      className="cursor-pointer"
+                    >
+                      <div className="font-semibold text-xs text-slate-900 dark:text-white line-clamp-2 leading-snug">
+                        {t.asunto}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                        <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate max-w-[140px]">{empresaNombre}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="truncate max-w-[100px]">{t.modulo}</span>
+                      </div>
+                    </div>
+
+                    {/* Footer info */}
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#1A3668] flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-2">
+                        {getPriorityBadge(t.prioridad)}
+                        <span className="text-slate-300 dark:text-slate-700">|</span>
+                        {agenteNombre ? (
+                          <span className="text-slate-600 dark:text-slate-300 text-[10px]">
+                            {agenteNombre.split(' ')[0]}
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => currentUser && asignarTicket(t.id, currentUser.id)}
+                            className="text-[10px] text-[#1565C0] dark:text-[#3FA2E8] font-semibold hover:underline flex items-center gap-0.5"
+                          >
+                            <UserPlus className="w-3 h-3" />
+                            <span>Tomar</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-slate-400 text-[10px]">
+                        <span>{tiempoRelativoCO(t.actualizadoEn || t.creadoEn)}</span>
+                        <button
+                          onClick={() => navigate(`/consola/ticket/${t.id}`)}
+                          className="p-1 text-slate-400 hover:text-[#1565C0] dark:hover:text-[#3FA2E8]"
+                          aria-label="Ver detalle del ticket"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop Table (>= md: Desktop & Landscape Tablets) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full min-w-[780px] text-left text-xs text-slate-700 dark:text-slate-200">
               <thead className="bg-slate-50 dark:bg-[#081B3A] text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#1A3668]">
                 <tr>
                   <th className="p-3 w-10 text-center">

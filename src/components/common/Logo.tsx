@@ -21,10 +21,10 @@ export const Logo: React.FC<LogoProps> = ({
 
   // Height configurations
   const heightStyles = {
-    sm: { h: 'h-8', iconSize: 32 },
-    md: { h: 'h-10 sm:h-11', iconSize: 40 },
-    lg: { h: 'h-12 sm:h-14', iconSize: 48 },
-    xl: { h: 'h-16 sm:h-20', iconSize: 64 },
+    sm: { h: 'h-7 sm:h-8', iconSize: 30 },
+    md: { h: 'h-8 sm:h-9 md:h-10', iconSize: 36 },
+    lg: { h: 'h-10 sm:h-12', iconSize: 48 },
+    xl: { h: 'h-14 sm:h-18', iconSize: 64 },
   };
 
   const selectedSize = heightStyles[size] || heightStyles.md;
@@ -146,37 +146,37 @@ export const Logo: React.FC<LogoProps> = ({
 
           {/* TYPOGRAPHY */}
           {!collapsed && (
-            <div className="flex flex-col justify-center leading-none">
+            <div className="flex flex-col justify-center leading-none whitespace-nowrap shrink-0 select-none">
               {/* DESKTOP FULL WORDMARK (Screens >= sm) */}
-              <div className="hidden sm:flex sm:flex-col leading-none">
+              <div className="hidden sm:flex sm:flex-col leading-none whitespace-nowrap shrink-0">
                 <div
-                  className={`font-black tracking-tight font-sans transition-colors ${
+                  className={`font-black tracking-tight font-sans transition-colors whitespace-nowrap ${
                     size === 'sm'
-                      ? 'text-sm'
+                      ? 'text-xs sm:text-[13px]'
                       : size === 'lg'
-                      ? 'text-xl'
+                      ? 'text-lg sm:text-xl'
                       : size === 'xl'
-                      ? 'text-2xl'
-                      : 'text-base md:text-lg'
+                      ? 'text-xl sm:text-2xl'
+                      : 'text-sm sm:text-base'
                   } ${titleColorClass}`}
                 >
                   SOFTWARE FACTORY
                 </div>
 
                 {/* Subtitle: — AND SERVICES — */}
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className={`h-[1px] w-3 ${dividerColorClass}`} />
+                <div className="flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+                  <span className={`h-[1px] w-2.5 sm:w-3 ${dividerColorClass}`} />
                   <span
-                    className={`text-[9px] md:text-[10px] font-bold tracking-[0.22em] uppercase ${subtitleColorClass}`}
+                    className={`text-[8.5px] sm:text-[9.5px] font-bold tracking-[0.2em] uppercase ${subtitleColorClass}`}
                   >
                     AND SERVICES
                   </span>
-                  <span className={`h-[1px] w-3 ${dividerColorClass}`} />
+                  <span className={`h-[1px] w-2.5 sm:w-3 ${dividerColorClass}`} />
                 </div>
 
                 {/* Subtitle / Service Desk Descriptor */}
                 {showSubtitle && (
-                  <div className="flex items-center gap-1.5 mt-1 text-[9px] font-semibold text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-1 mt-1 text-[8.5px] sm:text-[9px] font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
                     <span className="text-[#F37021] font-black tracking-wider uppercase">
                       Service Desk
                     </span>
@@ -189,15 +189,15 @@ export const Logo: React.FC<LogoProps> = ({
               </div>
 
               {/* MOBILE COMPACT LOCKUP (Screens < sm: Crisp & High Contrast) */}
-              <div className="flex sm:hidden flex-col leading-tight select-none">
-                <div className="flex items-center gap-1 font-bold">
+              <div className="flex sm:hidden flex-col leading-tight select-none whitespace-nowrap shrink-0">
+                <div className="flex items-center gap-1 font-bold whitespace-nowrap">
                   <span className="text-xs font-black text-[#F37021] tracking-tight">SFS</span>
                   <span className={`text-xs font-extrabold ${titleColorClass}`}>
                     Service Desk
                   </span>
                 </div>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className={`text-[8.5px] font-semibold tracking-wider uppercase opacity-85 ${subtitleColorClass}`}>
+                <div className="flex items-center gap-1 mt-0.5 whitespace-nowrap">
+                  <span className={`text-[8px] font-semibold tracking-wider uppercase opacity-85 ${subtitleColorClass}`}>
                     Software Factory
                   </span>
                 </div>

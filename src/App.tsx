@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { motion } from 'motion/react';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/consola/Sidebar';
 import { ToastContainer } from './components/common/ToastContainer';
@@ -61,7 +62,14 @@ const AppContent: React.FC = () => {
       <div className="min-h-screen flex flex-col bg-[#F5F7FB] dark:bg-[#081B3A] text-slate-800 dark:text-slate-100 transition-colors">
         <Header />
         <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
-          <PortalView subView={subView} ticketId={ticketId} />
+          <motion.div
+            key={cleanPath}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
+            <PortalView subView={subView} ticketId={ticketId} />
+          </motion.div>
         </main>
         <ToastContainer />
         <NotificationDrawer />
@@ -86,37 +94,44 @@ const AppContent: React.FC = () => {
         />
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          {cleanPath.startsWith('/consola/ticket/') ? (
-            <ConsolaTicketDetail ticketId={cleanPath.replace('/consola/ticket/', '')} />
-          ) : cleanPath === '/consola/metricas' ? (
-            <ConsolaMetricas />
-          ) : cleanPath === '/consola/anuncios' ? (
-            currentUser.rol === 'agente' ? (
-              <AccesoDenegado />
+          <motion.div
+            key={currentPath}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
+            {cleanPath.startsWith('/consola/ticket/') ? (
+              <ConsolaTicketDetail ticketId={cleanPath.replace('/consola/ticket/', '')} />
+            ) : cleanPath === '/consola/metricas' ? (
+              <ConsolaMetricas />
+            ) : cleanPath === '/consola/anuncios' ? (
+              currentUser.rol === 'agente' ? (
+                <AccesoDenegado />
+              ) : (
+                <ConsolaAnuncios />
+              )
+            ) : cleanPath === '/consola/empresas' ? (
+              currentUser.rol === 'agente' ? (
+                <AccesoDenegado />
+              ) : (
+                <ConsolaEmpresas />
+              )
+            ) : cleanPath === '/consola/usuarios' ? (
+              currentUser.rol === 'agente' ? (
+                <AccesoDenegado />
+              ) : (
+                <ConsolaUsuarios />
+              )
+            ) : cleanPath === '/consola/configuracion' ? (
+              currentUser.rol === 'agente' ? (
+                <AccesoDenegado />
+              ) : (
+                <ConsolaConfiguracion />
+              )
             ) : (
-              <ConsolaAnuncios />
-            )
-          ) : cleanPath === '/consola/empresas' ? (
-            currentUser.rol === 'agente' ? (
-              <AccesoDenegado />
-            ) : (
-              <ConsolaEmpresas />
-            )
-          ) : cleanPath === '/consola/usuarios' ? (
-            currentUser.rol === 'agente' ? (
-              <AccesoDenegado />
-            ) : (
-              <ConsolaUsuarios />
-            )
-          ) : cleanPath === '/consola/configuracion' ? (
-            currentUser.rol === 'agente' ? (
-              <AccesoDenegado />
-            ) : (
-              <ConsolaConfiguracion />
-            )
-          ) : (
-            <ConsolaBandeja />
-          )}
+              <ConsolaBandeja />
+            )}
+          </motion.div>
         </main>
       </div>
 
