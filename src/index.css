@@ -34,6 +34,57 @@
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
+/* Modern corporate text selection (Identidad SFS) */
+::selection {
+  background-color: #1565C0;
+  color: #FFFFFF;
+}
+
+::-moz-selection {
+  background-color: #1565C0;
+  color: #FFFFFF;
+}
+
+.dark ::selection {
+  background-color: #3FA2E8;
+  color: #081528;
+}
+
+.dark ::-moz-selection {
+  background-color: #3FA2E8;
+  color: #081528;
+}
+
+/* Modern form controls & select styling */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748B' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.65rem center;
+  background-repeat: no-repeat;
+  background-size: 1.15em 1.15em;
+  padding-right: 2.25rem !important;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dark select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394A3B8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Pristine focus-visible state for accessibility & modern feel */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #1565C0;
+  outline-offset: 1px;
+}
+
+.dark input:focus-visible,
+.dark select:focus-visible,
+.dark textarea:focus-visible {
+  outline: 2px solid #3FA2E8;
+  outline-offset: 1px;
+}
+
 .dark {
   --sfs-bg: #081528;
   --sfs-card: #0D1E38;

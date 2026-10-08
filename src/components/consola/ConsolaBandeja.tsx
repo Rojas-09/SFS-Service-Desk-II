@@ -107,7 +107,7 @@ export const ConsolaBandeja: React.FC = () => {
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
+    const list = tickets.filter((t) => {
       // Search
       if (search) {
         const q = search.toLowerCase();
@@ -120,7 +120,13 @@ export const ConsolaBandeja: React.FC = () => {
       // Quick tab & URL filters: Sin Asignar (strictly tickets without assigned agent)
       const esSinAsignar = soloSinAsignar || queryParams.filtro === 'sin_asignar';
       if (esSinAsignar) {
-        if (Boolean(t.asignadoAId)) return false;
+        const tieneAgente = Boolean(
+          t.asignadoAId &&
+          t.asignadoAId.trim() !== '' &&
+          t.asignadoAId !== 'null' &&
+          t.asignadoAId !== 'undefined'
+        );
+        if (tieneAgente) return false;
       }
 
       // Quick tab & URL filters: Mis Tickets
@@ -143,6 +149,11 @@ export const ConsolaBandeja: React.FC = () => {
 
       return true;
     });
+
+    // Consistent descending sort by latest activity
+    return [...list].sort(
+      (a, b) => new Date(b.actualizadoEn).getTime() - new Date(a.actualizadoEn).getTime()
+    );
   }, [
     tickets,
     search,

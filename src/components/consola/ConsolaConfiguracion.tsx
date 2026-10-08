@@ -118,12 +118,12 @@ export const ConsolaConfiguracion: React.FC = () => {
       </div>
 
       {/* Tabs navigation (Responsive, comfortable touch targets, no horizontal cut) */}
-      <div className="flex border-b border-slate-200 dark:border-[#1A3668] gap-1.5 sm:gap-3 text-xs font-bold overflow-x-auto pb-1 scrollbar-thin px-0.5">
+      <div className="flex border-b border-slate-200 dark:border-[#1A3668] gap-2 text-xs font-bold overflow-x-auto pb-1.5 scrollbar-thin px-1 -mx-1 sm:mx-0">
         <button
           onClick={() => setActiveTab('sla')}
-          className={`py-2 sm:py-2.5 px-3 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-lg ${
+          className={`py-2 sm:py-2.5 px-3.5 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-xl text-xs sm:text-xs whitespace-nowrap min-h-[42px] ${
             activeTab === 'sla'
-              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/50 dark:bg-blue-950/30'
+              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/60 dark:bg-blue-950/40 font-bold'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40'
           }`}
         >
@@ -133,9 +133,9 @@ export const ConsolaConfiguracion: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('macros')}
-          className={`py-2 sm:py-2.5 px-3 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-lg ${
+          className={`py-2 sm:py-2.5 px-3.5 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-xl text-xs sm:text-xs whitespace-nowrap min-h-[42px] ${
             activeTab === 'macros'
-              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/50 dark:bg-blue-950/30'
+              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/60 dark:bg-blue-950/40 font-bold'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40'
           }`}
         >
@@ -145,9 +145,9 @@ export const ConsolaConfiguracion: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('horario')}
-          className={`py-2 sm:py-2.5 px-3 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-lg ${
+          className={`py-2 sm:py-2.5 px-3.5 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-xl text-xs sm:text-xs whitespace-nowrap min-h-[42px] ${
             activeTab === 'horario'
-              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/50 dark:bg-blue-950/30'
+              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/60 dark:bg-blue-950/40 font-bold'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40'
           }`}
         >
@@ -157,9 +157,9 @@ export const ConsolaConfiguracion: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('notificaciones')}
-          className={`py-2 sm:py-2.5 px-3 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-lg ${
+          className={`py-2 sm:py-2.5 px-3.5 sm:px-4 border-b-2 transition flex items-center gap-2 shrink-0 rounded-t-xl text-xs sm:text-xs whitespace-nowrap min-h-[42px] ${
             activeTab === 'notificaciones'
-              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/50 dark:bg-blue-950/30'
+              ? 'border-[#1565C0] text-[#1565C0] dark:text-[#3FA2E8] bg-blue-50/60 dark:bg-blue-950/40 font-bold'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40'
           }`}
         >
@@ -549,17 +549,17 @@ export const ConsolaConfiguracion: React.FC = () => {
           </div>
 
           {/* Consola de Pruebas en Vivo */}
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#081B3A] border border-slate-200 dark:border-[#1A3668] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="min-w-0">
               <h4 className="font-bold text-[#0B2A5B] dark:text-white text-xs sm:text-sm">
                 Probar Despacho de Correo Simulado
               </h4>
-              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5 leading-relaxed">
                 Envía un correo de prueba inmediato para verificar la plantilla corporativa SFS y la bandeja de salida.
               </p>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
               <button
                 type="button"
                 disabled={enviandoPrueba}
@@ -582,7 +582,7 @@ export const ConsolaConfiguracion: React.FC = () => {
                     setEnviandoPrueba(false);
                   }
                 }}
-                className="w-full sm:w-auto px-4 py-2 bg-[#1565C0] hover:bg-[#1976D2] text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
+                className="w-full sm:w-auto px-4 py-2.5 bg-[#1565C0] hover:bg-[#1976D2] text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 min-h-[40px] active:scale-95"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>{enviandoPrueba ? 'Despachando...' : 'Enviar Prueba SMTP'}</span>
@@ -591,7 +591,7 @@ export const ConsolaConfiguracion: React.FC = () => {
               <button
                 type="button"
                 onClick={abrirNotificaciones}
-                className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-[#0B1E3B] border border-slate-200 dark:border-[#1A3668] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-[#0B1E3B] border border-slate-200 dark:border-[#1A3668] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 min-h-[40px] active:scale-95"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>Ver Bandeja de Salida</span>
